@@ -1,0 +1,66 @@
+# EditorConfig for Bonita Projects
+# https://editorconfig.org
+# Source: https://github.com/bonitasoft-ps/claude-code-toolkit
+#
+# Copy this file to your project root.
+# Most IDEs support EditorConfig natively or via plugins.
+
+root = true
+
+# Default for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Java files
+[*.java]
+indent_size = 4
+max_line_length = 120
+
+# Groovy files
+[*.groovy]
+indent_size = 4
+max_line_length = 120
+
+# Kotlin files
+[*.kt]
+indent_size = 4
+max_line_length = 120
+
+# XML files (POM, BDM, config)
+[*.xml]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Properties files
+[*.properties]
+indent_size = 4
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+end_of_line = lf
+
+# Batch scripts (Windows)
+[*.{bat,cmd}]
+end_of_line = crlf
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab

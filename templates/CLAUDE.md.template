@@ -1,0 +1,77 @@
+# Claude System Instructions for [PROJECT_NAME]
+
+## Project Overview
+<!-- TODO: Describe your project in 2-3 sentences -->
+This is a [Bonita BPM/Java Library/Microservice] project that [describe purpose].
+
+## Tech Stack
+- **Language:** Java 17
+- **Build:** Maven
+- **Framework:** [Bonita BPM / Spring Boot / etc.]
+- **Testing:** JUnit 5, Mockito 5, AssertJ, jqwik (property testing)
+- **Quality:** Checkstyle, PMD, JaCoCo, PIT (mutation testing)
+
+## Project Structure
+<!-- TODO: Describe your project's directory layout -->
+```
+project-root/
+├── extensions/          # REST API extensions (if Bonita)
+├── bdm/                 # Business Data Model (if Bonita)
+├── app/                 # Application descriptors and processes (if Bonita)
+├── src/main/java/       # Main source code (if library)
+└── src/test/java/       # Tests (if library)
+```
+
+## Mandatory Rules
+
+### Code Standards
+- **Java 17** features: use records, sealed classes, pattern matching, text blocks where appropriate
+- **Maximum 30 lines per method** (Single Responsibility Principle)
+- **ALL public methods** MUST have Javadoc
+- **Use constants** for all literal strings (never hardcode magic strings)
+- **No wildcard imports** (use explicit imports)
+- **No System.out.println** (use proper logging)
+
+### Testing Requirements
+- **JUnit 5** + **Mockito** + **AssertJ** for unit tests
+- Test naming: `should_do_X_when_condition_Y`
+- `@ExtendWith(MockitoExtension.class)` and `@DisplayName` on every test class
+- Cover: happy path, edge cases, error cases, null handling
+- **Property tests** with jqwik for data-driven classes
+
+### Code Quality Tools (MANDATORY)
+- **Checkstyle:** Run `mvn checkstyle:check` - zero violations policy
+- **PMD:** Run `mvn pmd:check` - zero violations policy
+- **JaCoCo:** Minimum 80% line coverage on new code
+- **PIT:** Mutation score > 60% on critical classes
+
+<!-- TODO: Add project-specific rules below -->
+
+## Naming Conventions
+<!-- TODO: Customize for your project -->
+- Classes: PascalCase
+- Methods: camelCase
+- Constants: UPPER_SNAKE_CASE
+- Test methods: should_do_X_when_condition_Y
+- Packages: lowercase, dot-separated
+
+## Context Files
+<!-- TODO: List your project's context/documentation files -->
+When starting a task, read these files for project context:
+- `AGENTS.md` - AI agent rules and project architecture
+- `context-ia/01-architecture.mdc` - Architecture decisions
+- `context-ia/02-datamodel.mdc` - Data model rules
+- `context-ia/03-integrations.mdc` - Backend integration standards
+
+## Before Making Changes
+1. **Read existing code** before modifying - understand the context
+2. **Check for existing implementations** using `/check-existing-extensions` or `/check-existing-processes`
+3. **Follow established patterns** in the codebase
+4. **Run compilation** after changes: `mvn clean compile`
+5. **Run tests** before considering work complete: `/run-tests`
+
+## Git Workflow
+- Branch naming: `feature/`, `fix/`, `refactor/`, `chore/`
+- Commit messages: conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `test:`, `docs:`)
+- Always compile before committing (enforced by pre-commit hook)
+- Never push directly to master/main
