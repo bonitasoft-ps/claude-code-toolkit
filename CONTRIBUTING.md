@@ -7,7 +7,7 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
 ## Our Methodology
 
 ### Principles
-1. **Consistency first** - All projects should follow the same standards
+1. **Consistency first** - All projects follow the same standards
 2. **Automate everything** - If a check can be automated, it should be a hook
 3. **Fail fast** - Catch issues during development, not in code review
 4. **Document as you go** - Every command, hook, and skill has documentation
@@ -24,9 +24,26 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
 
 ## How to Contribute
 
-### Adding a New Command
+### Step 1: Choose the right scope
 
-1. **Choose a category:** `java-maven/`, `bonita/`, `quality/`, or `testing/`. Create a new category if needed.
+Every resource you add must have a **recommended scope**. Ask yourself:
+
+| Question | Scope | Symbol |
+|----------|-------|--------|
+| Should this apply to ALL developers on ALL projects? | **Enterprise** | ★★★ |
+| Is this a developer productivity tool? | **Personal** | ★★☆ |
+| Does this depend on the project type (Bonita, Library)? | **Project** | ★☆☆ |
+
+**Examples:**
+- Code formatting hook → ★★★ Enterprise (everyone must format the same way)
+- `/compile` command → ★★☆ Personal (developer convenience, not enforcement)
+- BDM countFor validation → ★☆☆ Project (only Bonita BDM projects need this)
+
+### Step 2: Add the resource
+
+#### Adding a New Command
+
+1. **Choose a category:** `java-maven/`, `bonita/`, `quality/`, or `testing/`. Create a new one if needed.
 
 2. **Create the Markdown file:**
    ```
@@ -53,9 +70,7 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
 
 4. **Test it** in a real project before submitting.
 
-5. **Update the README** - Add the command to the appropriate table in README.md.
-
-### Adding a New Hook Script
+#### Adding a New Hook Script
 
 1. **Create the script:**
    ```
@@ -76,6 +91,7 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
    # my-hook.sh - Brief description
    # Fires: PostToolUse on Edit/Write (or PreToolUse on Bash, etc.)
    # Behavior: Warns about X / Blocks Y
+   # Scope: ★★★ Enterprise / ★★☆ Personal / ★☆☆ Project
 
    INPUT=$(cat)
 
@@ -103,11 +119,9 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
    exit 0
    ```
 
-4. **Add to templates** - Update `bonita-project.json` and/or `java-library.json` with the hook configuration.
+4. **Add to templates** - Update `bonita-project.json` and/or `java-library.json` with the hook config.
 
-5. **Update the README** - Add the hook to the Available Hooks table.
-
-### Adding a New Skill
+#### Adding a New Skill
 
 1. **Create the skill directory:**
    ```
@@ -129,9 +143,11 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
    - "Mandatory Rules" - What patterns to enforce
    - "When the user asks about X" - Step-by-step workflow
 
-4. **Test auto-invocation** - Verify Claude activates the skill when asking about the relevant topic.
+4. **Use descriptive names** to avoid conflicts across scopes. Instead of `review`, use `bonita-pr-review`.
 
-### Adding a Configuration File
+5. **Test auto-invocation** - Verify Claude activates the skill when asking about the relevant topic.
+
+#### Adding a Configuration File
 
 1. **Place in `configs/`:**
    ```
@@ -143,17 +159,12 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
    - How to integrate it (Maven plugin config snippet)
    - Link to the toolkit repo
 
-3. **Update the README** - Add the config to the Toolkit Structure and document its purpose.
+### Step 3: Update documentation
 
-### Updating a Settings Template
-
-1. **Edit the appropriate template** in `templates/`:
-   - `bonita-project.json` for Bonita BPM projects
-   - `java-library.json` for Java libraries
-
-2. **Add your hook** to the correct event (PreToolUse, PostToolUse, Stop, etc.)
-
-3. **Test the full template** in a real project.
+1. **README.md** - Add the resource to the correct scope section (Enterprise / Personal / Project)
+2. **Scope symbol** - Mark with ★★★, ★★☆, or ★☆☆ in the repository structure
+3. **Templates** - If it's a hook, update `bonita-project.json` and/or `java-library.json`
+4. **install.sh** - If it's a new hook or config, update the installer script
 
 ---
 
@@ -167,18 +178,22 @@ This toolkit defines our **team methodology** for AI-assisted development. Every
 | Config files | Standard names | `checkstyle.xml`, `pmd-ruleset.xml` |
 | Templates | `descriptive-name.json` | `bonita-project.json` |
 
+**Skill naming tip:** Use descriptive, prefixed names to avoid conflicts across scopes. Example: `bonita-bdm-expert` instead of just `bdm`.
+
 ---
 
 ## Quality Checklist
 
 Before submitting a PR, verify:
 
-- [ ] Command/hook/skill works in a real project
-- [ ] README.md is updated with the new resource
+- [ ] Resource has a recommended scope (★★★ / ★★☆ / ★☆☆)
+- [ ] Resource works in a real project
+- [ ] README.md is updated with the resource in the correct scope section
 - [ ] Hook scripts have proper file filtering (don't run on irrelevant files)
 - [ ] Hook scripts are fast (< 2 seconds)
 - [ ] Hook scripts exit with correct codes (0 = allow, 2 = block)
 - [ ] Templates are updated if a new hook was added
+- [ ] install.sh is updated if applicable
 - [ ] No hardcoded project-specific paths (use `$CLAUDE_PROJECT_DIR`)
 
 ---
@@ -188,47 +203,46 @@ Before submitting a PR, verify:
 ```
 claude-code-toolkit/
 ├── commands/
-│   ├── java-maven/          # Generic Java + Maven commands
-│   ├── bonita/              # Bonita BPM specific commands
-│   ├── quality/             # Code quality commands
-│   └── testing/             # Testing commands
+│   ├── java-maven/          # ★★☆ Personal — developer productivity
+│   ├── bonita/              # ★☆☆ Project — Bonita BPM specific
+│   ├── quality/             # ★★☆ Personal — quality tools
+│   └── testing/             # ★★☆ Personal — testing tools
 ├── hooks/
-│   └── scripts/             # Reusable hook scripts
-├── skills/                  # Reusable skills (auto-invocable)
-├── configs/                 # Standard config files (Checkstyle, PMD, EditorConfig)
-├── templates/               # settings.json templates + CLAUDE.md template
-├── README.md                # Full documentation (methodology + catalog)
+│   └── scripts/             # ★★★ Enterprise + ★☆☆ Project hooks
+├── skills/                  # ★★★ Enterprise — domain expertise
+├── configs/                 # ★★★ Enterprise — standard rules
+├── templates/               # ★☆☆ Project — settings + CLAUDE.md
+├── install.sh               # Automated installer
+├── README.md                # Full documentation
 ├── CONTRIBUTING.md          # This file
-└── ADOPTION_GUIDE.md        # Step-by-step adoption instructions
+└── ADOPTION_GUIDE.md        # Step-by-step adoption guide
 ```
 
 ---
 
 ## Ideas for Future Contributions
 
-Here are areas where the toolkit can grow:
-
 ### New Commands
-- `/analyze-dependencies` - Detect unused or conflicting Maven dependencies
-- `/security-audit` - Check for known vulnerabilities in dependencies
-- `/generate-dto` - Generate DTO records from a specification
-- `/document-api` - Generate OpenAPI documentation from controllers
-- `/migrate-java` - Help migrate code to newer Java version features
+- `/analyze-dependencies` - Detect unused or conflicting Maven dependencies ★★☆
+- `/security-audit` - Check for known vulnerabilities in dependencies ★★☆
+- `/generate-dto` - Generate DTO records from a specification ★★☆
+- `/document-api` - Generate OpenAPI documentation from controllers ★☆☆
+- `/migrate-java` - Help migrate code to newer Java version features ★★☆
 
 ### New Hooks
-- `check-dependency-versions.sh` - Warn about outdated dependencies on edit of pom.xml
-- `check-sql-injection.sh` - Detect potential SQL injection in JPQL queries
-- `check-null-safety.sh` - Detect potential NullPointerException patterns
-- `check-logging-level.sh` - Ensure appropriate log levels in production code
+- `check-dependency-versions.sh` - Warn about outdated dependencies on pom.xml edit ★★★
+- `check-sql-injection.sh` - Detect potential SQL injection in JPQL queries ★★★
+- `check-null-safety.sh` - Detect potential NullPointerException patterns ★★★
+- `check-logging-level.sh` - Ensure appropriate log levels in production code ★★★
 
 ### New Skills
-- `bonita-process-expert` - Expert guidance on Bonita process modeling
-- `bonita-connector-expert` - Expert guidance on Bonita connector development
-- `java-migration-expert` - Help migrate Java 11/8 code to Java 17+ idioms
-- `testing-expert` - Expert guidance on test strategy and coverage
+- `bonita-process-expert` - Expert guidance on Bonita process modeling ★★★
+- `bonita-connector-expert` - Expert guidance on Bonita connector development ★★★
+- `java-migration-expert` - Help migrate Java 11/8 code to Java 17+ idioms ★★★
+- `testing-expert` - Expert guidance on test strategy and coverage ★★★
 
 ### New Configs
-- `spotbugs-ruleset.xml` - SpotBugs configuration
-- `jacoco-rules.xml` - JaCoCo coverage rules
-- `pit-config.xml` - PIT mutation testing configuration
-- `sonarqube.properties` - SonarQube project configuration
+- `spotbugs-ruleset.xml` - SpotBugs configuration ★★★
+- `jacoco-rules.xml` - JaCoCo coverage rules ★★★
+- `pit-config.xml` - PIT mutation testing configuration ★★★
+- `sonarqube.properties` - SonarQube project configuration ★★★

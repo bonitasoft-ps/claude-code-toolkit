@@ -1,556 +1,586 @@
-# Claude Code Toolkit - Team Methodology for AI-Assisted Development
+# Claude Code Toolkit — Bonitasoft Development Methodology
 
-A shared **methodology repository** that defines how our team builds software with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Contains reusable **commands**, **hooks**, **skills**, **configurations**, and **templates** to ensure consistency, quality, and productivity across all Bonita BPM/BPA and Java projects.
+> A catalog of **skills**, **commands**, **hooks**, and **configurations** for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that defines how Bonitasoft builds software with AI.
 
-> **Goal:** Every team member, on every project, follows the same standards -- automatically enforced by AI-powered hooks and commands.
+**Clone this repository. Pick what you need. Install at the right scope. Code better.**
+
+```
+git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
+```
 
 ---
 
 ## Table of Contents
 
-- [Why This Toolkit Exists](#why-this-toolkit-exists)
-- [Our Methodology](#our-methodology)
-- [Key Concepts](#key-concepts)
-  - [Commands (Slash Commands)](#1-commands-slash-commands)
-  - [Hooks (Automatic Checks)](#2-hooks-automatic-checks)
-  - [Skills (Expert Assistants)](#3-skills-expert-assistants)
-  - [Configurations (Standard Files)](#4-configurations-standard-files)
-- [Where to Define Things (Scopes)](#where-to-define-things-scopes)
-  - [Context Files (CLAUDE.md)](#context-files-claudemd)
-  - [Commands, Hooks, and Settings](#commands-hooks-and-settings)
-  - [The 4 Levels at a Glance](#the-4-levels-at-a-glance)
-- [Toolkit Structure](#toolkit-structure)
-- [Quick Start](#quick-start)
-- [Catalog: Commands](#catalog-commands)
-- [Catalog: Hooks](#catalog-hooks)
-- [Catalog: Skills](#catalog-skills)
-- [Catalog: Configuration Files](#catalog-configuration-files)
-- [Catalog: Templates](#catalog-templates)
-- [How to Adopt in Your Project](#how-to-adopt-in-your-project)
+- [What is this?](#what-is-this)
+- [The 3 Scopes + Priority System](#the-3-scopes--priority-system)
+  - [Enterprise Scope](#-enterprise-scope--priority-1)
+  - [Personal Scope](#-personal-scope--priority-2)
+  - [Project Scope](#-project-scope--priority-3)
+  - [Plugin Scope](#-plugin-scope--priority-4)
+- [Resource Catalog by Scope](#resource-catalog-by-scope)
+  - [Enterprise Resources](#enterprise-resources)
+  - [Personal Resources](#personal-resources)
+  - [Project Resources](#project-resources)
+- [Installation Guide](#installation-guide)
+- [What are Commands, Hooks, Skills?](#what-are-commands-hooks-skills)
+- [Where to Define Things](#where-to-define-things)
+- [Repository Structure](#repository-structure)
 - [Contributing](#contributing)
 - [Projects Using This Toolkit](#projects-using-this-toolkit)
 
 ---
 
-## Why This Toolkit Exists
+## What is this?
 
-Without a shared methodology, each developer writes code differently, forgets quality checks, and has to re-learn project conventions. This toolkit solves that by:
+This repository is the **single source of truth** for Bonitasoft's AI-assisted development methodology. It contains:
 
-1. **Automating quality checks** - Hooks fire automatically when you edit code, commit, or finish a task
-2. **Standardizing practices** - Everyone uses the same Checkstyle, PMD, and EditorConfig rules
-3. **Providing expert guidance** - Skills give Claude domain knowledge about Bonita BDM, REST APIs, etc.
-4. **Sharing workflows** - Commands like `/run-tests`, `/generate-tests` work the same in every project
-5. **Onboarding instantly** - New team members get everything just by cloning the project
+| What | Purpose | How many |
+|------|---------|----------|
+| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API) | 2 |
+| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 14 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 8 |
+| **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
+| **Templates** | Ready-to-use settings and CLAUDE.md starter | 3 |
 
----
+### Why this exists
 
-## Our Methodology
+Without a shared methodology, each developer writes code differently, forgets quality checks, and reinvents solutions. This toolkit:
 
-### Core Principles
+1. **Homogenizes development** — Everyone follows the same standards, automatically
+2. **Prevents errors** — Hooks catch issues during development, not in code review
+3. **Ensures testing** — Auto-test agents create and run tests when Claude finishes
+4. **Avoids duplication** — Commands check for existing implementations before creating new ones
+5. **Onboards instantly** — New team members get everything by cloning the project
 
-| Principle | Meaning |
-|-----------|---------|
-| **Consistency first** | All projects follow the same standards, formatting, and naming |
-| **Automate everything** | If a check can be automated, it becomes a hook |
-| **Fail fast** | Catch issues during development, not in code review |
-| **Document as you go** | Every controller has a README, every method has Javadoc |
-| **Share and reuse** | Useful patterns go in the toolkit for everyone |
+### How to use it
 
-### Development Workflow
+1. **Clone** this repository
+2. **Choose** which resources you need (see the catalog below)
+3. **Install** at the right scope (Enterprise, Personal, or Project)
+4. **Restart** Claude Code
 
-```
-1. Start task          -->  Claude reads CLAUDE.md + AGENTS.md + context files
-2. Write code          -->  Hooks auto-check: formatting, style, strings, methods
-3. Edit BDM            -->  Hook auto-validates countFor queries
-4. Create controller   -->  Hook reminds about README.md
-5. Use commands        -->  /run-tests, /check-bdm-queries, /generate-tests
-6. Finish task         -->  Agent auto-creates/updates tests, runs them
-7. Commit              -->  Hook blocks if mvn clean compile fails
-```
-
-### Mandatory Quality Standards
-
-- **Java 17** features (records, sealed classes, pattern matching)
-- **Max 30 lines per method** (SRP)
-- **Javadoc on all public methods**
-- **Constants for all literal strings** (no magic strings)
-- **No wildcard imports**, no `System.out.println`
-- **Checkstyle** + **PMD** = zero violations policy
-- **JaCoCo** >= 80% line coverage on new code
-- **Test naming:** `should_do_X_when_condition_Y`
-
----
-
-## Key Concepts
-
-### 1. Commands (Slash Commands)
-
-**What:** Custom instructions invoked by typing `/command-name` in Claude Code.
-
-**How:** Each command is a Markdown file (`.md`) in `.claude/commands/`. Claude reads it and follows the instructions. Use `$ARGUMENTS` to accept parameters.
-
-**Example file** (`.claude/commands/run-tests.md`):
-```markdown
-# Run Tests
-Run tests in the extensions module.
-## Arguments
-- `$ARGUMENTS`: test type (unit, integration, property, all) or class name
-## Instructions
-1. Execute: `mvn test -f extensions/pom.xml`
-2. Show a summary of passed/failed/skipped tests
-```
-
-**How to use:**
-```
-You: /run-tests
-You: /run-tests integration
-You: /run-tests MyControllerTest
-```
-
-### 2. Hooks (Automatic Checks)
-
-**What:** Scripts that fire **automatically** on specific events. The user does NOT invoke them -- they run on their own.
-
-**How:** Defined in `settings.json`, hooks run shell scripts that receive JSON context via stdin.
-
-**Events:**
-
-| Event | When it fires | Typical use |
-|-------|--------------|-------------|
-| `PreToolUse` | Before Claude uses a tool | Block dangerous actions |
-| `PostToolUse` | After Claude uses a tool | Lint, validate, warn |
-| `Stop` | When Claude finishes responding | Auto-run tests, create files |
-| `Notification` | When Claude needs attention | Desktop alerts |
-| `SessionStart` | Session begins or resumes | Reinject context |
-
-**Exit codes:**
-- `exit 0` = Allow (send warnings via stderr)
-- `exit 2` = **Block** the action (PreToolUse only)
-
-**Hook types:**
-- `command` - Shell script (fast, deterministic)
-- `prompt` - Claude evaluates a text prompt (uses AI judgment)
-- `agent` - Spawns a full Claude agent with tool access (most powerful)
-
-**Example** (`pre-commit-compile.sh`):
+You can also use the automated installer:
 ```bash
-#!/bin/bash
-INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))")
-
-if ! echo "$COMMAND" | grep -qE "git\s+commit"; then exit 0; fi
-
-mvn clean compile 2>&1
-if [ $? -ne 0 ]; then
-    echo "BLOCKED: Compilation failed. Fix errors before committing." >&2
-    exit 2
-fi
-exit 0
+bash install.sh
 ```
 
-### 3. Skills (Expert Assistants)
-
-**What:** Advanced commands with YAML frontmatter that Claude can **auto-invoke** when it detects a relevant task.
-
-**How:** Skills live in `.claude/skills/skill-name/SKILL.md` and offer:
-- Tool restrictions (`allowed-tools: Read, Grep, Glob`)
-- Auto-invocation (Claude activates them without the user typing `/`)
-- Isolated context (`context: fork`)
-- Scoped hooks
-
-**Comparison with commands:**
-
-| Feature | Command | Skill |
-|---------|---------|-------|
-| File format | `.md` (plain) | `SKILL.md` (YAML + markdown) |
-| Location | `.claude/commands/` | `.claude/skills/name/` |
-| Tool restrictions | No | Yes |
-| Auto-invocation | No | Yes |
-| Isolated context | No | Yes |
-
-**Example** (`bonita-bdm-expert/SKILL.md`):
-```yaml
----
-name: bonita-bdm-expert
-description: Use when the user asks about BDM queries, data model, or JPQL.
-allowed-tools: Read, Grep, Glob
 ---
 
-You are an expert in Bonita BDM design.
-When asked about queries:
-1. Read bdm/bom.xml
-2. Check for existing queries
-3. Ensure countFor queries exist for collections
+## The 3 Scopes + Priority System
+
+Claude Code uses a **priority system** for skills, commands, hooks, and settings. When two resources share the same name, the higher-priority scope wins:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│   PRIORITY 1 ★★★  Enterprise                                │
+│   Organization-wide. Cannot be overridden. Maximum control.  │
+│                                                              │
+│   PRIORITY 2 ★★☆  Personal                                  │
+│   Your home directory. Available in ALL your projects.       │
+│                                                              │
+│   PRIORITY 3 ★☆☆  Project                                   │
+│   Inside the repo. Shared with team via git.                 │
+│                                                              │
+│   PRIORITY 4 ☆☆☆  Plugin                                    │
+│   Namespaced (plugin-name:skill-name). Lowest priority.      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### 4. Configurations (Standard Files)
-
-**What:** Reference configuration files (Checkstyle, PMD, EditorConfig) that define team-wide formatting and style rules.
-
-**How:** Copy from `configs/` to your project root. Configure Maven plugins to use them.
-
-**Why:** Everyone's code looks the same, regardless of IDE or personal preferences.
+> **Example:** If you have a skill called `bonita-bdm-expert` at the Enterprise level AND at the Project level, the **Enterprise version always wins**. This lets the organization enforce standards that individuals cannot override.
 
 ---
 
-## Where to Define Things (Scopes)
+### ★★★ Enterprise Scope — Priority 1
 
-Claude Code uses a **layered scope system**. Understanding it is key to proper configuration.
+**What:** Organization-wide configuration managed by administrators. **Cannot be overridden** by Personal or Project settings.
 
-### Context Files (CLAUDE.md)
+**Where it lives:**
 
-Claude reads instructions from **three** context files, merged together:
+| OS | Path |
+|----|------|
+| Windows | `C:\ProgramData\ClaudeCode\managed-settings.json` |
+| Linux/WSL | `/etc/claude-code/managed-settings.json` |
+| macOS | `/Library/Application Support/ClaudeCode/managed-settings.json` |
 
-| File | Shared? | Scope | Purpose |
-|------|---------|-------|---------|
-| **`CLAUDE.md`** | Yes (git) | Project | Team rules, architecture, conventions. Generated with `/init`. Committed to version control. |
-| **`CLAUDE.local.md`** | No | Project (personal) | Your personal tweaks for this project. NOT committed. Only you see this. |
-| **`~/.claude/CLAUDE.md`** | No | Global (personal) | Rules you want Claude to follow in ALL projects (e.g., "prefer Spanish", "always use bun"). |
+**Who manages it:** System administrators / DevOps team.
 
-**Priority:** Project `CLAUDE.md` > `~/.claude/CLAUDE.md`. Your `CLAUDE.local.md` adds to or overrides for your session only.
+**Best for:** Non-negotiable standards that the organization wants to enforce for everyone:
+- Code formatting rules (Checkstyle, PMD)
+- Style enforcement hooks
+- Compilation checks before commit
+- Domain expertise skills (BDM, REST API patterns)
 
-### Commands, Hooks, and Settings
+**How Enterprise resources are deployed:**
+1. IT/DevOps creates the `managed-settings.json` file at the system path
+2. Skills can be uploaded via the Claude Skills API for organization-wide availability
+3. Configuration cannot be modified by individual developers
 
-Commands, hooks, and settings also have three levels:
+---
 
-#### Level 1: Project (shared with team via git)
+### ★★☆ Personal Scope — Priority 2
+
+**What:** Your personal commands, skills, and settings. Available in **every project** you open. Not shared with anyone.
+
+**Where it lives:**
+
+```
+~/.claude/                     # Windows: C:\Users\YourName\.claude\
+├── CLAUDE.md                  # Your global instructions for Claude
+├── commands/                  # Your personal commands (all projects)
+│   └── my-shortcut.md
+├── skills/                    # Your personal skills (all projects)
+│   └── my-skill/
+│       └── SKILL.md
+└── settings.json              # Your personal hooks + permissions
+```
+
+**Who manages it:** You.
+
+**Best for:** Developer productivity tools and personal preferences:
+- Compilation shortcuts
+- Test execution commands
+- Code generation helpers
+- Quality inspection tools
+- Personal workflow preferences
+
+---
+
+### ★☆☆ Project Scope — Priority 3
+
+**What:** Project-specific configuration committed to git. **Shared automatically** with the whole team when they pull.
+
+**Where it lives:**
 
 ```
 your-project/
 ├── CLAUDE.md                  # Project instructions (shared)
-├── CLAUDE.local.md            # Personal instructions (NOT committed)
+├── CLAUDE.local.md            # Your personal overrides (NOT committed)
 └── .claude/
-    ├── commands/              # Commands for this project (shared)
-    ├── hooks/                 # Hook scripts for this project (shared)
-    ├── skills/                # Skills for this project (shared)
-    ├── settings.json          # Hooks config (shared via git)
-    └── settings.local.json    # Personal overrides (NOT committed)
+    ├── commands/              # Project commands (shared)
+    ├── hooks/                 # Project hook scripts (shared)
+    ├── skills/                # Project skills (shared)
+    ├── settings.json          # Project hooks config (shared)
+    └── settings.local.json    # Your personal overrides (NOT committed)
 ```
 
-- Teammates get commands/hooks/skills automatically on `git pull`
-- `settings.local.json` and `CLAUDE.local.md` are personal, NOT shared
+**Who manages it:** The team (via git).
 
-#### Level 2: User / Personal (all your projects)
-
-```
-~/.claude/
-├── CLAUDE.md                  # Global instructions for all projects
-├── commands/                  # Commands available everywhere
-├── skills/                    # Skills available everywhere
-└── settings.json              # Global hooks + permissions
-```
-
-- NOT shared with anyone
-- Available in every project you open
-
-#### Level 3: Shared Toolkit (this repository)
-
-```
-claude-code-toolkit/           # This repo
-├── commands/                  # Catalog of commands to copy
-├── hooks/scripts/             # Catalog of hook scripts to copy
-├── skills/                    # Catalog of skills to copy
-├── configs/                   # Standard config files to copy
-└── templates/                 # Ready-to-use settings.json + CLAUDE.md
-```
-
-- A **catalog** to copy from into Level 1 or Level 2
-- Shared via git with the whole team
-- Defines the team methodology
-
-### The 4 Levels at a Glance
-
-| What | Project (shared) | Project (personal) | Global (personal) | Toolkit (catalog) |
-|------|-----------------|-------------------|-------------------|--------------------|
-| **Instructions** | `CLAUDE.md` | `CLAUDE.local.md` | `~/.claude/CLAUDE.md` | `templates/CLAUDE.md.template` |
-| **Commands** | `.claude/commands/` | -- | `~/.claude/commands/` | `commands/` |
-| **Skills** | `.claude/skills/` | -- | `~/.claude/skills/` | `skills/` |
-| **Settings** | `.claude/settings.json` | `.claude/settings.local.json` | `~/.claude/settings.json` | `templates/*.json` |
-| **Configs** | `checkstyle.xml`, etc. | -- | -- | `configs/` |
-
-### Decision Guide
-
-| You want to... | Put it in... |
-|----------------|-------------|
-| Set project rules for the whole team | `CLAUDE.md` (project, committed) |
-| Set personal preferences for this project | `CLAUDE.local.md` (project, NOT committed) |
-| Set personal rules for ALL your projects | `~/.claude/CLAUDE.md` (global) |
-| Share a command with your team for this project | `.claude/commands/` (project level) |
-| Have a personal shortcut for all projects | `~/.claude/commands/` (user level) |
-| Enforce a hook for the whole team | `.claude/settings.json` (project level) |
-| Have a personal hook only for you | `.claude/settings.local.json` (project, not committed) |
-| Standardize practices across all team projects | This toolkit (copy to each project) |
+**Best for:** Resources that depend on the specific project:
+- Bonita-specific checks (BDM, controllers, processes)
+- Project-type-specific hooks (library test pairs, BDM validation)
+- Settings templates tailored to the project
 
 ---
 
-## Toolkit Structure
+### ☆☆☆ Plugin Scope — Priority 4
 
-```
-claude-code-toolkit/
-├── commands/
-│   ├── java-maven/                    # Generic Java + Maven
-│   │   ├── compile.md                 # /compile
-│   │   ├── run-tests.md              # /run-tests
-│   │   └── run-mutation-tests.md     # /run-mutation-tests
-│   ├── bonita/                        # Bonita BPM specific
-│   │   ├── check-bdm-queries.md      # /check-bdm-queries
-│   │   ├── validate-bdm.md           # /validate-bdm
-│   │   ├── check-existing-extensions.md  # /check-existing-extensions
-│   │   ├── check-existing-processes.md   # /check-existing-processes
-│   │   └── generate-readme.md        # /generate-readme
-│   ├── quality/                       # Code quality
-│   │   ├── audit-compliance.md       # /audit-compliance
-│   │   ├── check-code-quality.md     # /check-code-quality
-│   │   ├── create-constants.md       # /create-constants
-│   │   └── refactor-method-signature.md  # /refactor-method-signature
-│   └── testing/                       # Testing
-│       ├── generate-tests.md         # /generate-tests
-│       └── check-coverage.md         # /check-coverage
-├── hooks/
-│   └── scripts/
-│       ├── pre-commit-compile.sh     # Block commit if compilation fails
-│       ├── check-method-usages.sh    # Detect method signature changes
-│       ├── check-bdm-countfor.sh     # Validate countFor queries
-│       ├── check-hardcoded-strings.sh # Detect magic strings
-│       ├── check-controller-readme.sh # Warn if controller lacks README
-│       ├── check-test-pair.sh        # Verify Test + PropertyTest exist
-│       ├── check-code-format.sh      # Formatting: tabs, whitespace, line length, imports
-│       └── check-code-style.sh       # Style: System.out, empty catch, method length, @Override
-├── configs/
-│   ├── checkstyle.xml                # Checkstyle rules (Google-based, team-adjusted)
-│   ├── pmd-ruleset.xml               # PMD rules (best practices, design, error-prone)
-│   └── .editorconfig                 # Editor formatting (indent, line endings, charset)
-├── skills/
-│   ├── bonita-bdm-expert/            # Auto-invoked BDM expert
-│   │   └── SKILL.md
-│   └── bonita-rest-api-expert/       # Auto-invoked REST API expert
-│       └── SKILL.md
-├── templates/
-│   ├── bonita-project.json           # settings.json for Bonita projects
-│   ├── java-library.json             # settings.json for Java libraries
-│   └── CLAUDE.md.template            # Starter CLAUDE.md for new projects
-├── README.md                         # This file
-├── CONTRIBUTING.md                   # How to add commands, hooks, skills
-└── ADOPTION_GUIDE.md                 # Step-by-step adoption guide
-```
+**What:** Skills bundled within Claude Code plugins. Use **namespaced names** (`plugin-name:skill-name`) so they never conflict with other scopes.
+
+**Best for:** Third-party or optional extensions distributed as packages.
 
 ---
 
-## Quick Start
+## Resource Catalog by Scope
 
-### For a Bonita BPM project
+### Enterprise Resources
+
+These resources enforce **organization-wide standards**. We recommend deploying them at the Enterprise level so they apply to all developers on all projects, and **cannot be overridden**.
+
+#### Enterprise Skills
+
+| Skill | Auto-invokes when... | What it enforces |
+|-------|---------------------|-----------------|
+| `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | countFor rule, naming conventions (`PB` prefix), descriptions, indexes |
+| `bonita-rest-api-expert` | User asks about REST API extensions, controllers | Abstract/Concrete pattern, README.md, Javadoc, test requirements |
+
+#### Enterprise Hooks
+
+| Hook | Event | What it enforces |
+|------|-------|-----------------|
+| `pre-commit-compile.sh` | PreToolUse (Bash) | **Blocks** `git commit` if `mvn clean compile` fails |
+| `check-code-format.sh` | PostToolUse (Edit/Write) | Tabs, trailing whitespace, line length > 120, wildcard imports, blank lines |
+| `check-code-style.sh` | PostToolUse (Edit/Write) | System.out.println, empty catch, methods > 30 lines, missing @Override |
+| `check-hardcoded-strings.sh` | PostToolUse (Edit) | Magic strings in comparisons and switch cases |
+
+#### Enterprise Configs
+
+| Config | Purpose | Maven plugin |
+|--------|---------|-------------|
+| `checkstyle.xml` | Code style rules (Google-based, team-adjusted) | `maven-checkstyle-plugin` |
+| `pmd-ruleset.xml` | Static analysis (complexity, best practices, errors) | `maven-pmd-plugin` |
+| `.editorconfig` | Editor formatting (indent, line endings, charset) | Native IDE support |
+
+---
+
+### Personal Resources
+
+These are **developer productivity tools**. Install them in `~/.claude/` so they're available in every project without cluttering project repos.
+
+#### Personal Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `/compile` | Compile project with Maven | `/compile` or `/compile extensions` |
+| `/run-tests` | Run unit/integration/property tests | `/run-tests`, `/run-tests integration`, `/run-tests MyClass` |
+| `/run-mutation-tests` | Run PIT mutation testing | `/run-mutation-tests MyModule` |
+| `/generate-tests` | Generate unit + property tests for a class | `/generate-tests MyController` |
+| `/check-coverage` | Run JaCoCo and verify coverage thresholds | `/check-coverage` |
+| `/check-code-quality` | Check Javadoc, method length, code smells | `/check-code-quality src/main/java/` |
+| `/audit-compliance` | Full project compliance audit | `/audit-compliance` |
+| `/refactor-method-signature` | Refactor method + update ALL call sites | `/refactor-method-signature setName add param` |
+| `/create-constants` | Extract hardcoded strings to constants | `/create-constants MyService.java` |
+
+---
+
+### Project Resources
+
+These resources **depend on the project type**. Install them in `.claude/` within the specific repository and commit to git.
+
+#### Project Commands (Bonita BPM)
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `/check-bdm-queries` | Search existing BDM queries before creating new ones | `/check-bdm-queries PBProcess` |
+| `/validate-bdm` | Full BDM compliance audit (countFor, descriptions, indexes) | `/validate-bdm` |
+| `/check-existing-extensions` | Search extensions for similar functionality | `/check-existing-extensions cancel process` |
+| `/check-existing-processes` | Search processes for similar logic | `/check-existing-processes notification` |
+| `/generate-readme` | Generate README.md for a REST API controller | `/generate-readme CancelController` |
+
+#### Project Hooks
+
+| Hook | For project type | What it does |
+|------|-----------------|-------------|
+| `check-bdm-countfor.sh` | Bonita BPM | Warns about missing countFor queries when editing bom.xml |
+| `check-controller-readme.sh` | Bonita BPM | Warns when creating a controller without README.md |
+| `check-method-usages.sh` | Multi-module Java | Lists files calling a method when its signature changes |
+| `check-test-pair.sh` | Java libraries | Warns if *Test.java or *PropertyTest.java is missing |
+
+#### Project Templates
+
+| Template | For project type | What it includes |
+|----------|-----------------|-----------------|
+| `bonita-project.json` | Bonita BPM | All enterprise hooks + BDM/controller hooks + auto-test agent |
+| `java-library.json` | Java libraries | Enterprise hooks + test-pair check + auto-test agent |
+| `CLAUDE.md.template` | Any project | Starter CLAUDE.md with team standards and TODO markers |
+
+#### Agent Hooks (in templates)
+
+| Agent | Trigger | What it does |
+|-------|---------|-------------|
+| Auto-test agent (Bonita) | Stop (Claude finishes) | Finds modified files, creates/updates tests, runs `mvn test` |
+| Auto-test agent (Library) | Stop (Claude finishes) | Same + ensures PropertyTest files exist for jqwik |
+
+---
+
+## Installation Guide
+
+### Option 1: Automated Installer
 
 ```bash
-# Clone the toolkit (one time)
-git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
+cd /path/to/claude-code-toolkit
+bash install.sh
+```
 
-# Go to your project
-cd your-bonita-project
+The script will ask you:
+1. Which scope (Enterprise / Personal / Project)
+2. Which project type (Bonita BPM / Java Library / Generic)
+3. Where to install (path)
+
+### Option 2: Manual Installation
+
+#### Install Enterprise Resources
+
+Deploy to the system-wide managed settings path:
+
+**Skills** — Upload via Claude Skills API or copy to managed enterprise directory:
+```bash
+# Copy skills to a shared enterprise location
+sudo mkdir -p /etc/claude-code/skills
+sudo cp -r skills/bonita-bdm-expert /etc/claude-code/skills/
+sudo cp -r skills/bonita-rest-api-expert /etc/claude-code/skills/
+```
+
+**Hooks + Configs** — Add to `managed-settings.json`:
+```bash
+# Windows (run as Administrator):
+mkdir -p "C:\ProgramData\ClaudeCode"
+cp configs/checkstyle.xml "C:\ProgramData\ClaudeCode\"
+cp configs/pmd-ruleset.xml "C:\ProgramData\ClaudeCode\"
+# Edit C:\ProgramData\ClaudeCode\managed-settings.json to include hook definitions
+
+# Linux:
+sudo mkdir -p /etc/claude-code
+sudo cp configs/* /etc/claude-code/
+# Edit /etc/claude-code/managed-settings.json
+```
+
+#### Install Personal Resources
+
+Copy commands and settings to your home directory:
+```bash
+# Create directories
+mkdir -p ~/.claude/commands
+
+# Copy productivity commands
+cp commands/java-maven/* ~/.claude/commands/
+cp commands/quality/* ~/.claude/commands/
+cp commands/testing/* ~/.claude/commands/
+
+# Optional: copy personal settings with enterprise hooks
+cp templates/bonita-project.json ~/.claude/settings.json
+```
+
+#### Install Project Resources
+
+Copy to your project's `.claude/` directory and commit:
+```bash
+cd your-project
 mkdir -p .claude/commands .claude/hooks .claude/skills
 
-# Copy the template settings
-cp /path/to/claude-code-toolkit/templates/bonita-project.json .claude/settings.json
-
-# Copy commands (all categories)
-cp /path/to/claude-code-toolkit/commands/java-maven/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/bonita/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/quality/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/testing/* .claude/commands/
+# Copy project-specific commands (Bonita example)
+cp /path/to/toolkit/commands/bonita/* .claude/commands/
 
 # Copy hook scripts
-cp /path/to/claude-code-toolkit/hooks/scripts/* .claude/hooks/
+cp /path/to/toolkit/hooks/scripts/* .claude/hooks/
 chmod +x .claude/hooks/*.sh
 
 # Copy skills
-cp -r /path/to/claude-code-toolkit/skills/* .claude/skills/
+cp -r /path/to/toolkit/skills/* .claude/skills/
+
+# Copy settings template
+cp /path/to/toolkit/templates/bonita-project.json .claude/settings.json
 
 # Copy config files to project root
-cp /path/to/claude-code-toolkit/configs/checkstyle.xml .
-cp /path/to/claude-code-toolkit/configs/pmd-ruleset.xml .
-cp /path/to/claude-code-toolkit/configs/.editorconfig .
+cp /path/to/toolkit/configs/checkstyle.xml .
+cp /path/to/toolkit/configs/pmd-ruleset.xml .
+cp /path/to/toolkit/configs/.editorconfig .
 
-# Copy CLAUDE.md template (customize after copying)
-cp /path/to/claude-code-toolkit/templates/CLAUDE.md.template CLAUDE.md
+# Copy and customize CLAUDE.md
+cp /path/to/toolkit/templates/CLAUDE.md.template CLAUDE.md
 
 # Commit to share with team
 git add .claude/ checkstyle.xml pmd-ruleset.xml .editorconfig CLAUDE.md
-git commit -m "chore: adopt Claude Code toolkit for team methodology"
-```
-
-### For a Java library
-
-```bash
-cp /path/to/claude-code-toolkit/templates/java-library.json .claude/settings.json
-cp /path/to/claude-code-toolkit/commands/java-maven/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/quality/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/testing/* .claude/commands/
-cp /path/to/claude-code-toolkit/hooks/scripts/*.sh .claude/hooks/
-chmod +x .claude/hooks/*.sh
-cp /path/to/claude-code-toolkit/configs/* .
-cp /path/to/claude-code-toolkit/templates/CLAUDE.md.template CLAUDE.md
+git commit -m "chore: adopt Claude Code toolkit methodology"
 ```
 
 Then **restart Claude Code** to load the new hooks.
 
 ---
 
-## Catalog: Commands
+## What are Commands, Hooks, Skills?
 
-### Java / Maven
+### Commands (Slash Commands)
 
-| Command | Description |
-|---------|-------------|
-| `/compile` | Compile project with Maven (`mvn clean compile`) |
-| `/run-tests [unit\|integration\|property\|all\|ClassName]` | Run tests with Maven |
-| `/run-mutation-tests [module\|class]` | Run PIT mutation testing |
+**What:** Instructions you invoke by typing `/command-name` in Claude Code.
 
-### Bonita Specific
+**How:** Markdown files in `.claude/commands/` or `~/.claude/commands/`. Use `$ARGUMENTS` for parameters.
 
-| Command | Description |
-|---------|-------------|
-| `/check-bdm-queries [ObjectName]` | Search existing BDM queries before creating new ones |
-| `/validate-bdm` | Full BDM compliance audit (countFor, descriptions, indexes) |
-| `/check-existing-extensions [description]` | Search extensions for similar functionality |
-| `/check-existing-processes [description]` | Search processes/subprocesses for similar logic |
-| `/generate-readme [controller]` | Generate README.md for a REST API controller |
+```markdown
+# Run Tests
+## Arguments
+- `$ARGUMENTS`: test type (unit, integration, property) or class name
+## Instructions
+1. Execute: `mvn test -f extensions/pom.xml`
+2. Show summary of results
+```
 
-### Code Quality
+```
+You: /run-tests                    → runs all tests
+You: /run-tests integration       → runs integration tests
+You: /run-tests MyControllerTest  → runs specific class
+```
 
-| Command | Description |
-|---------|-------------|
-| `/audit-compliance` | Full project compliance audit (tests, docs, BDM, quality) |
-| `/check-code-quality [file\|dir]` | Check Javadoc, method length, code smells |
-| `/create-constants [file]` | Extract hardcoded strings to constants classes |
-| `/refactor-method-signature [method + change]` | Refactor method and update ALL call sites |
+### Hooks (Automatic Checks)
 
-### Testing
+**What:** Scripts that fire **automatically** on events. No user action required.
 
-| Command | Description |
-|---------|-------------|
-| `/generate-tests [ClassName]` | Generate unit + property tests for a class |
-| `/check-coverage` | Run JaCoCo and verify coverage thresholds |
+**How:** Defined in `settings.json`. Scripts receive JSON on stdin, return exit codes.
 
+| Event | When | Use |
+|-------|------|-----|
+| `PreToolUse` | Before Claude uses a tool | Block dangerous actions |
+| `PostToolUse` | After Claude uses a tool | Lint, validate, warn |
+| `Stop` | Claude finishes responding | Auto-run tests |
+
+| Exit code | Meaning |
+|-----------|---------|
+| `exit 0` | Allow (warnings via stderr) |
+| `exit 2` | **Block** the action (PreToolUse only) |
+
+**Types:** `command` (shell script), `prompt` (AI judgment), `agent` (full Claude agent with tools)
+
+### Skills (Expert Assistants)
+
+**What:** Advanced commands with YAML frontmatter. Claude **auto-invokes** them when it detects a relevant task.
+
+**How:** `SKILL.md` files in `.claude/skills/skill-name/`.
+
+```yaml
 ---
-
-## Catalog: Hooks
-
-### Automatic Hooks (fire without user action)
-
-| Hook Script | Event | Trigger | Behavior |
-|-------------|-------|---------|----------|
-| `pre-commit-compile.sh` | PreToolUse (Bash) | `git commit` | **Blocks** commit if `mvn clean compile` fails |
-| `check-controller-readme.sh` | PreToolUse (Write) | Creating a controller `.java` file | **Warns** if no README.md in controller directory |
-| `check-method-usages.sh` | PostToolUse (Edit) | Editing Java/Groovy | **Warns** about files calling modified methods |
-| `check-bdm-countfor.sh` | PostToolUse (Edit) | Editing `bom.xml` | **Warns** about missing countFor queries |
-| `check-hardcoded-strings.sh` | PostToolUse (Edit) | Editing Java/Groovy | **Warns** about magic strings in comparisons/switch |
-| `check-test-pair.sh` | PostToolUse (Edit/Write) | Editing source files | **Warns** if Test or PropertyTest file is missing |
-| `check-code-format.sh` | PostToolUse (Edit/Write) | Editing Java/Groovy | **Warns** about tabs, trailing spaces, line length, wildcard imports |
-| `check-code-style.sh` | PostToolUse (Edit/Write) | Editing Java | **Warns** about System.out, empty catch, long methods, missing @Override |
-
-### Agent Hooks (in templates)
-
-| Hook | Event | Behavior |
-|------|-------|----------|
-| Auto-test agent (Bonita) | Stop | Finds modified files, creates/updates tests, runs `mvn test` |
-| Auto-test agent (Library) | Stop | Same + ensures PropertyTest files exist for jqwik |
-
+name: bonita-bdm-expert
+description: Use when the user asks about BDM queries or data model.
+allowed-tools: Read, Grep, Glob
 ---
+You are an expert in Bonita BDM design...
+```
 
-## Catalog: Skills
+| Feature | Command | Skill |
+|---------|---------|-------|
+| Format | `.md` | `SKILL.md` (YAML frontmatter) |
+| Location | `.claude/commands/` | `.claude/skills/name/` |
+| Tool restrictions | No | Yes (`allowed-tools`) |
+| Auto-invocation | No (user types `/`) | Yes (Claude detects context) |
 
-| Skill | Auto-invokes when... | What it does |
-|-------|---------------------|-------------|
-| `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | Reads bom.xml, enforces countFor rule, naming, descriptions, indexes |
-| `bonita-rest-api-expert` | User asks about REST API extensions | Enforces Abstract/Concrete pattern, README.md, DTOs, test requirements |
+### Configurations
 
-**Install:** `cp -r /path/to/claude-code-toolkit/skills/* .claude/skills/`
+**What:** Standard rule files for code quality tools (Checkstyle, PMD, EditorConfig).
 
----
+**How:** Copy to project root. Reference from Maven plugins:
 
-## Catalog: Configuration Files
-
-| File | Purpose | How to use |
-|------|---------|------------|
-| `configs/checkstyle.xml` | Code style rules (Google-based) | Copy to project root. Add `maven-checkstyle-plugin` to pom.xml |
-| `configs/pmd-ruleset.xml` | Static analysis rules | Copy to project root. Add `maven-pmd-plugin` to pom.xml |
-| `configs/.editorconfig` | Editor formatting (indent, line endings) | Copy to project root. Most IDEs support natively |
-
-### Maven plugin snippets
-
-**Checkstyle:**
 ```xml
+<!-- Checkstyle -->
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-checkstyle-plugin</artifactId>
   <version>3.3.1</version>
   <configuration>
     <configLocation>checkstyle.xml</configLocation>
-    <consoleOutput>true</consoleOutput>
     <failsOnError>true</failsOnError>
   </configuration>
 </plugin>
-```
 
-**PMD:**
-```xml
+<!-- PMD -->
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-pmd-plugin</artifactId>
   <version>3.21.2</version>
   <configuration>
-    <rulesets>
-      <ruleset>pmd-ruleset.xml</ruleset>
-    </rulesets>
+    <rulesets><ruleset>pmd-ruleset.xml</ruleset></rulesets>
     <failOnViolation>true</failOnViolation>
-    <printFailingErrors>true</printFailingErrors>
   </configuration>
 </plugin>
 ```
 
 ---
 
-## Catalog: Templates
+## Where to Define Things
 
-| Template | Target | Includes |
-|----------|--------|----------|
-| `bonita-project.json` | Bonita BPM projects | All 8 hooks + auto-test agent |
-| `java-library.json` | Java libraries | 5 hooks + test-pair validation + auto-test agent |
-| `CLAUDE.md.template` | Any project | Starter CLAUDE.md with team standards and TODO markers |
+### Context Files (CLAUDE.md)
+
+| File | Shared? | Scope | Purpose |
+|------|---------|-------|---------|
+| `CLAUDE.md` | Yes (git) | Project | Team rules, architecture. `/init` to generate. |
+| `CLAUDE.local.md` | No | Project (personal) | Your tweaks. NOT committed. |
+| `~/.claude/CLAUDE.md` | No | Global (personal) | Rules for ALL your projects. |
+
+### Priority: Project `CLAUDE.md` > `~/.claude/CLAUDE.md`. `CLAUDE.local.md` adds/overrides for your session.
+
+### Full Scope Matrix
+
+| What | Enterprise | Personal | Project (shared) | Project (personal) |
+|------|-----------|----------|-----------------|-------------------|
+| **Skills** | Skills API / managed | `~/.claude/skills/` | `.claude/skills/` | — |
+| **Commands** | — | `~/.claude/commands/` | `.claude/commands/` | — |
+| **Hooks** | `managed-settings.json` | `~/.claude/settings.json` | `.claude/settings.json` | `.claude/settings.local.json` |
+| **Instructions** | — | `~/.claude/CLAUDE.md` | `CLAUDE.md` | `CLAUDE.local.md` |
+| **Configs** | System path | — | Project root | — |
+
+### Quick Decision Guide
+
+| You want to... | Scope | Location |
+|----------------|-------|----------|
+| Enforce standards for ALL developers | Enterprise | `managed-settings.json` |
+| Have personal productivity tools | Personal | `~/.claude/commands/` |
+| Share team rules for a project | Project | `CLAUDE.md` + `.claude/` |
+| Override something just for you | Project (personal) | `CLAUDE.local.md` / `settings.local.json` |
+| Set personal rules for ALL projects | Personal | `~/.claude/CLAUDE.md` |
 
 ---
 
-## How to Adopt in Your Project
+## Repository Structure
 
-See [ADOPTION_GUIDE.md](ADOPTION_GUIDE.md) for detailed step-by-step instructions.
+```
+claude-code-toolkit/
+├── commands/
+│   ├── java-maven/                    # ★★☆ Personal — developer productivity
+│   │   ├── compile.md
+│   │   ├── run-tests.md
+│   │   └── run-mutation-tests.md
+│   ├── bonita/                        # ★☆☆ Project — Bonita-specific
+│   │   ├── check-bdm-queries.md
+│   │   ├── validate-bdm.md
+│   │   ├── check-existing-extensions.md
+│   │   ├── check-existing-processes.md
+│   │   └── generate-readme.md
+│   ├── quality/                       # ★★☆ Personal — quality tools
+│   │   ├── audit-compliance.md
+│   │   ├── check-code-quality.md
+│   │   ├── create-constants.md
+│   │   └── refactor-method-signature.md
+│   └── testing/                       # ★★☆ Personal — testing tools
+│       ├── generate-tests.md
+│       └── check-coverage.md
+├── hooks/
+│   └── scripts/
+│       ├── pre-commit-compile.sh      # ★★★ Enterprise — never commit broken code
+│       ├── check-code-format.sh       # ★★★ Enterprise — uniform formatting
+│       ├── check-code-style.sh        # ★★★ Enterprise — style standards
+│       ├── check-hardcoded-strings.sh # ★★★ Enterprise — constants policy
+│       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
+│       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
+│       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
+│       └── check-test-pair.sh         # ★☆☆ Project — libraries only
+├── skills/
+│   ├── bonita-bdm-expert/             # ★★★ Enterprise — company BDM knowledge
+│   │   └── SKILL.md
+│   └── bonita-rest-api-expert/        # ★★★ Enterprise — company REST API patterns
+│       └── SKILL.md
+├── configs/
+│   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
+│   ├── pmd-ruleset.xml                # ★★★ Enterprise — static analysis
+│   └── .editorconfig                  # ★★★ Enterprise — editor formatting
+├── templates/
+│   ├── bonita-project.json            # ★☆☆ Project — Bonita settings template
+│   ├── java-library.json              # ★☆☆ Project — Library settings template
+│   └── CLAUDE.md.template             # ★☆☆ Project — Starter instructions
+├── install.sh                         # Automated installer script
+├── README.md                          # This file
+├── CONTRIBUTING.md                    # How to contribute to the toolkit
+└── ADOPTION_GUIDE.md                  # Step-by-step adoption guide
+```
 
-**Summary:**
-1. Copy template settings + commands + hooks + skills + configs to your project
-2. `chmod +x .claude/hooks/*.sh`
-3. Customize `CLAUDE.md` for your project
-4. `git commit` to share with team
-5. Restart Claude Code
-
-New team members get everything automatically when they clone the project.
+**Legend:** ★★★ Enterprise | ★★☆ Personal | ★☆☆ Project
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 - How to add new commands, hooks, skills, and configs
-- Team methodology principles
+- How to classify resources by scope
 - Naming conventions and quality checklist
 - Ideas for future contributions
+
+### Quick contribution guide
+
+1. Clone this repo
+2. Add or improve a resource
+3. Classify it by scope (Enterprise / Personal / Project) in the README
+4. Test in a real project
+5. Submit a PR
 
 ---
 
 ## Projects Using This Toolkit
 
-- [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) - Bonita BPM Process Builder
-- [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) - Shared Java library
+- [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) — Bonita BPM Process Builder
+- [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) — Shared Java library
 
 ---
 
 ## License
 
-Internal use - Bonitasoft Professional Services
+Internal use — Bonitasoft Professional Services

@@ -1,142 +1,213 @@
-# Adoption Guide: Claude Code Toolkit for Bonita Teams
+# Adoption Guide: Claude Code Toolkit
+
+This guide explains how to adopt the Bonitasoft development methodology in your project.
+
+---
 
 ## Quick Start (5 minutes)
 
-### Step 1: Clone this toolkit
+### Option A: Automated Installer (Recommended)
+
 ```bash
-git clone https://github.com/bonitasoft-presales/claude-code-toolkit.git
-# Or if local:
-# Located at C:\JavaProjects\claude-code-toolkit
+# Clone the toolkit
+git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
+
+# Run the installer
+cd claude-code-toolkit
+bash install.sh
 ```
 
-### Step 2: Set up your Bonita project
+The installer asks:
+1. **Scope** — Enterprise (org-wide), Personal (your tools), or Project (team via git)
+2. **Project type** — Bonita BPM, Java Library, or Generic Java
+3. **Path** — Where to install
+
+### Option B: Manual Setup
+
 ```bash
-cd your-bonita-project
+# Clone the toolkit
+git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
 
-# Create Claude directories
-mkdir -p .claude/commands .claude/hooks
+# Go to your project
+cd your-project
+mkdir -p .claude/commands .claude/hooks .claude/skills
 
-# Copy template settings
-cp /path/to/claude-code-toolkit/templates/bonita-project.json .claude/settings.json
+# Copy settings template (choose one)
+cp /path/to/toolkit/templates/bonita-project.json .claude/settings.json  # For Bonita
+cp /path/to/toolkit/templates/java-library.json .claude/settings.json    # For libraries
 
-# Copy commands (pick what you need)
-cp /path/to/claude-code-toolkit/commands/java-maven/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/bonita/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/quality/* .claude/commands/
-cp /path/to/claude-code-toolkit/commands/testing/* .claude/commands/
+# Copy commands
+cp /path/to/toolkit/commands/bonita/* .claude/commands/     # Bonita-specific commands
+cp /path/to/toolkit/commands/java-maven/* .claude/commands/ # Build commands (optional)
+cp /path/to/toolkit/commands/quality/* .claude/commands/    # Quality commands (optional)
+cp /path/to/toolkit/commands/testing/* .claude/commands/    # Testing commands (optional)
 
-# Copy hook scripts
-cp /path/to/claude-code-toolkit/hooks/scripts/* .claude/hooks/
+# Copy hook scripts + make executable
+cp /path/to/toolkit/hooks/scripts/* .claude/hooks/
 chmod +x .claude/hooks/*.sh
 
-# Commit so teammates get it automatically
-git add .claude/
-git commit -m "chore: add Claude Code commands and hooks from toolkit"
+# Copy skills
+cp -r /path/to/toolkit/skills/* .claude/skills/
+
+# Copy config files to project root
+cp /path/to/toolkit/configs/checkstyle.xml .
+cp /path/to/toolkit/configs/pmd-ruleset.xml .
+cp /path/to/toolkit/configs/.editorconfig .
+
+# Copy and customize CLAUDE.md
+cp /path/to/toolkit/templates/CLAUDE.md.template CLAUDE.md
+
+# Commit to share with team
+git add .claude/ checkstyle.xml pmd-ruleset.xml .editorconfig CLAUDE.md
+git commit -m "chore: adopt Claude Code toolkit methodology"
 ```
 
 ### Step 3: Restart Claude Code
+
 Close and reopen Claude Code (or your IDE with Claude extension) to load the new hooks.
+
+---
+
+## Understanding the Scopes
+
+Resources are organized by **scope** — who they affect and where they're installed:
+
+```
+★★★ Enterprise   Cannot be overridden. For ALL developers on ALL projects.
+★★☆ Personal     Your ~/.claude/ directory. Available in all YOUR projects.
+★☆☆ Project      Inside the repo .claude/. Shared with team via git.
+```
+
+**Priority:** Enterprise > Personal > Project. If two resources have the same name, the higher scope wins.
+
+### What goes where?
+
+| Resource type | Recommended scope | Why |
+|---------------|------------------|-----|
+| Formatting hooks (check-code-format.sh) | ★★★ Enterprise | Everyone formats the same |
+| Style hooks (check-code-style.sh) | ★★★ Enterprise | Consistent style standards |
+| Pre-commit compilation | ★★★ Enterprise | Never commit broken code |
+| Config files (Checkstyle, PMD) | ★★★ Enterprise | Same rules for everyone |
+| Skills (BDM expert, REST API expert) | ★★★ Enterprise | Company domain knowledge |
+| Productivity commands (/compile, /run-tests) | ★★☆ Personal | Developer convenience |
+| Bonita-specific commands (/check-bdm-queries) | ★☆☆ Project | Only for Bonita projects |
+| BDM hooks (check-bdm-countfor.sh) | ★☆☆ Project | Only for BDM projects |
+| Settings templates | ★☆☆ Project | Tailored per project type |
 
 ---
 
 ## What You Get
 
-### Automatic Hooks (run without user action)
+### Automatic Hooks (fire without user action)
 
-| When | What happens | Why |
-|------|-------------|-----|
-| You edit a Java file | Checks if method signatures changed, lists affected files | Prevents broken call sites |
-| You edit a Java file | Detects hardcoded magic strings | Enforces constants usage |
-| You edit bom.xml | Checks for missing countFor queries | Ensures pagination compliance |
-| You create a controller file | Warns if README.md is missing | Enforces documentation |
-| Claude finishes responding | Auto-creates/updates tests for modified files, then runs them | Ensures test coverage |
-| You commit code | Runs `mvn clean compile` first, blocks if it fails | Prevents broken commits |
+| When | What happens | Scope |
+|------|-------------|-------|
+| You edit Java/Groovy | Checks formatting (tabs, whitespace, line length) | ★★★ |
+| You edit Java | Checks style (System.out, empty catch, method length) | ★★★ |
+| You edit Java/Groovy | Detects hardcoded magic strings | ★★★ |
+| You commit code | Blocks if `mvn clean compile` fails | ★★★ |
+| You edit bom.xml | Checks for missing countFor queries | ★☆☆ |
+| You edit Java/Groovy | Lists files using modified method signatures | ★☆☆ |
+| You create a controller | Warns if README.md is missing | ★☆☆ |
+| Claude finishes | Auto-creates/updates tests for modified files | ★☆☆ |
 
 ### Slash Commands (type `/command` in Claude Code)
 
-| Command | What it does |
-|---------|-------------|
-| `/compile` | Compile project |
-| `/run-tests` | Run unit/integration/property tests |
-| `/run-mutation-tests` | Run PIT mutation testing |
-| `/generate-tests ClassName` | Generate unit + property tests for a class |
-| `/check-code-quality` | Check Javadoc, method length, code smells |
-| `/audit-compliance` | Full project compliance audit |
-| `/check-bdm-queries PBProcess` | Search existing BDM queries |
-| `/validate-bdm` | Validate BDM countFor, descriptions, indexes |
-| `/check-existing-extensions` | Search for existing functionality in extensions |
-| `/check-existing-processes` | Search for existing process/subprocess logic |
-| `/refactor-method-signature` | Refactor method + update all call sites |
-| `/create-constants` | Extract hardcoded strings to constants |
-| `/generate-readme` | Generate README.md for a controller |
-| `/check-coverage` | Run JaCoCo and check coverage thresholds |
+| Command | What it does | Scope |
+|---------|-------------|-------|
+| `/compile` | Compile project | ★★☆ |
+| `/run-tests` | Run unit/integration/property tests | ★★☆ |
+| `/run-mutation-tests` | Run PIT mutation testing | ★★☆ |
+| `/generate-tests ClassName` | Generate unit + property tests | ★★☆ |
+| `/check-code-quality` | Check Javadoc, method length, smells | ★★☆ |
+| `/audit-compliance` | Full project compliance audit | ★★☆ |
+| `/refactor-method-signature` | Refactor method + update call sites | ★★☆ |
+| `/create-constants` | Extract hardcoded strings to constants | ★★☆ |
+| `/check-coverage` | Run JaCoCo and check thresholds | ★★☆ |
+| `/check-bdm-queries PBObject` | Search existing BDM queries | ★☆☆ |
+| `/validate-bdm` | Validate BDM countFor, descriptions, indexes | ★☆☆ |
+| `/check-existing-extensions` | Search for existing functionality | ★☆☆ |
+| `/check-existing-processes` | Search for existing process logic | ★☆☆ |
+| `/generate-readme` | Generate README.md for a controller | ★☆☆ |
+
+### Expert Skills (auto-invoked by Claude)
+
+| Skill | When Claude activates it | Scope |
+|-------|------------------------|-------|
+| `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | ★★★ |
+| `bonita-rest-api-expert` | User asks about REST API extensions, controllers | ★★★ |
 
 ---
 
-## For Java Library Projects
+## For Different Project Types
 
-Use the library template instead:
-```bash
-cp /path/to/claude-code-toolkit/templates/java-library.json .claude/settings.json
-```
+### Bonita BPM Projects
 
-Library-specific differences:
-- Pre-commit runs `mvn test` (not just compile)
-- Checks for test PAIRS: `*Test.java` + `*PropertyTest.java`
-- Auto-generates both unit and property tests
+Use `bonita-project.json` as the settings template. This includes all enterprise hooks plus:
+- BDM countFor validation
+- Controller README.md check
+- Method usage tracking
+- Auto-test agent on Stop
+
+### Java Library Projects
+
+Use `java-library.json` as the settings template. Differences from Bonita:
+- Test pair validation (*Test.java + *PropertyTest.java)
+- Auto-test agent includes property test generation
+
+### Generic Java Projects
+
+Use `bash install.sh` and choose "Generic Java". Gets enterprise hooks only (formatting, style, pre-commit).
 
 ---
 
 ## Customizing
 
 ### Add project-specific commands
-Create `.claude/commands/my-command.md` in your project. It's just a Markdown file:
+Create `.claude/commands/my-command.md` in your project:
 
 ```markdown
 # My Custom Command
-
-Do something specific to this project.
-
 ## Arguments
 - `$ARGUMENTS`: what the user passes after the command
-
 ## Instructions
 1. Step one
 2. Step two
 ```
 
 ### Disable a hook temporarily
-Edit `.claude/settings.json` and remove the hook entry, or set:
+Edit `.claude/settings.json` and remove the hook entry, or use:
 ```json
 { "disableAllHooks": true }
 ```
 
 ### Personal commands (not shared)
-Put them in `~/.claude/commands/` - they'll be available in all your projects but won't affect teammates.
+Put them in `~/.claude/commands/` — available in all your projects, invisible to teammates.
+
+### Personal overrides (not shared)
+Use `.claude/settings.local.json` for permissions or hook overrides that only apply to you.
 
 ---
 
-## Scope Reference
+## Setup per Role
 
-| Location | Shared with team? | Available where? |
-|----------|------------------|-----------------|
-| `.claude/commands/` (project) | Yes (via git) | This project only |
-| `.claude/settings.json` (project) | Yes (via git) | This project only |
-| `.claude/settings.local.json` (project) | No (gitignored) | This project, you only |
-| `~/.claude/commands/` (user) | No | All your projects |
-| `~/.claude/settings.json` (user) | No | All your projects |
+### Developer
+1. Run `bash install.sh` → choose Personal for commands, Project for your project
+2. Add personal shortcuts to `~/.claude/commands/`
+3. Customize `CLAUDE.local.md` for your preferences
 
-### Recommended setup per role:
+### Tech Lead
+1. Set up the toolkit in each project repo (Project scope)
+2. Coordinate Enterprise scope deployment with IT/DevOps
+3. Customize hooks per project needs
+4. Review and update the shared toolkit periodically
 
-**Developer:**
-- Use project-level commands/hooks from git (automatic via this toolkit)
-- Add personal shortcuts to `~/.claude/commands/`
+### New Team Member
+1. `git clone` the project — commands, hooks, and skills are already there
+2. Optionally run `bash install.sh` → Personal to get productivity commands
+3. Nothing else to install or configure
 
-**Tech Lead:**
-- Set up the toolkit in each project repo
-- Customize hooks per project needs
-- Review and update shared toolkit periodically
-
-**New team member:**
-- `git clone` the project → commands/hooks are already there
-- Nothing extra to install or configure
+### IT/DevOps (Enterprise Deployment)
+1. Run `bash install.sh` → Enterprise
+2. Deploy `managed-settings.json` to the system path
+3. Upload skills via Claude Skills API for organization-wide availability
