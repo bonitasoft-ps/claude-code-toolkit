@@ -1,0 +1,55 @@
+{
+  "_comment": "Claude Code settings template for Bonita BPM/BPA projects. Copy to .claude/settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-commit-compile.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-controller-readme.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-method-usages.sh\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-bdm-countfor.sh\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-hardcoded-strings.sh\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are an automated test validation agent. Run `git diff --name-only HEAD` and `git status` to find modified .java/.groovy/.kt files under extensions/*/src/main/java/. If none modified, say nothing and stop. For each modified file: check if *Test.java exists under src/test/java/ with matching package. If tests exist, verify they cover current public methods and update if needed. If tests don't exist, create them following project conventions (JUnit 5, Mockito, AssertJ, should_do_X_when_condition_Y naming). Then run: mvn test -f extensions/pom.xml -Dtest=<test-classes>. Fix failures and re-run once. Report: files modified, tests created/updated, test results.",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

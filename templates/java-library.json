@@ -1,0 +1,51 @@
+{
+  "_comment": "Claude Code settings template for Java libraries. Copy to .claude/settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-commit-compile.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-test-pair.sh\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-hardcoded-strings.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-test-pair.sh\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are a test validation agent for a Java library. Run `git diff --name-only HEAD` and `git status` to find modified .java files under src/main/java/. If none, say nothing and stop. For each modified file, verify BOTH exist: ClassNameTest.java (unit) and ClassNamePropertyTest.java (property). Create missing tests following project conventions. Unit: JUnit 5 + Mockito + AssertJ, should_do_X_when_condition_Y naming. Property: jqwik @Property/@ForAll, test invariants. Run: mvn clean test -Dtest=<classes>. Fix and re-run once if needed. Report results.",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
