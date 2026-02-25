@@ -156,51 +156,71 @@ When asked about queries or data model:
 
 ## Where to Define Things (Scopes)
 
-There are **three levels** where you can place commands, hooks, and settings. Each level has different visibility:
+Claude Code uses **three context levels** for instructions, and **three levels** for commands/hooks/settings. Understanding these scopes is essential for proper configuration.
+
+### Context Files (CLAUDE.md)
+
+Claude reads instructions from these three files, in order of priority:
+
+| File | Shared? | Scope | Description |
+|------|---------|-------|-------------|
+| **`CLAUDE.md`** | Yes (git) | Project | Generated with `/init`. Committed to version control. Shared with all engineers on the project. Contains project rules, architecture, conventions. |
+| **`CLAUDE.local.md`** | No | Project (personal) | NOT committed to git. Contains your personal instructions and customizations for this project. Only you see this. |
+| **`~/.claude/CLAUDE.md`** | No | Global (personal) | Used across ALL projects on your machine. Contains instructions you want Claude to follow everywhere (e.g., "always use bun", "prefer Spanish comments"). |
+
+**How Claude merges them:** All three files are loaded together. If there are conflicts, project-level (`CLAUDE.md`) takes priority over global (`~/.claude/CLAUDE.md`). Your personal `CLAUDE.local.md` can add to or override project instructions for your session only.
+
+### Commands, Hooks, and Settings
+
+Similarly, commands, hooks, and settings have three levels:
 
 ### Level 1: Project (shared with team via git)
 
 ```
 your-project/
+├── CLAUDE.md                  # Project instructions (shared via git)
+├── CLAUDE.local.md            # Personal instructions (NOT committed)
 └── .claude/
-    ├── commands/          # Commands available in this project
+    ├── commands/              # Commands available in this project (shared)
     │   └── run-tests.md
-    ├── hooks/             # Hook scripts for this project
+    ├── hooks/                 # Hook scripts for this project (shared)
     │   └── pre-commit.sh
-    ├── skills/            # Skills for this project
+    ├── skills/                # Skills for this project (shared)
     │   └── bonita-expert/
     │       └── SKILL.md
-    ├── settings.json      # Hooks config + permissions (committed to git)
-    └── settings.local.json # Personal overrides (NOT committed, gitignored)
+    ├── settings.json          # Hooks config + permissions (shared via git)
+    └── settings.local.json    # Personal overrides (NOT committed)
 ```
 
-- **Committed to git** = teammates get them automatically when they pull
-- `settings.local.json` is personal and NOT shared
-- **Best for:** Project-specific commands and hooks
+- Everything under `.claude/` (except `settings.local.json`) is **committed to git**
+- Teammates get commands, hooks, and skills automatically when they pull
+- `settings.local.json` and `CLAUDE.local.md` are personal and NOT shared
+- **Best for:** Project-specific commands, hooks, and team rules
 
 ### Level 2: User / Personal (all your projects)
 
 ```
 ~/.claude/                     # Windows: C:\Users\YourName\.claude\
+├── CLAUDE.md                  # Global instructions for Claude (all projects)
 ├── commands/                  # Commands available in ALL your projects
 │   └── my-shortcut.md
 ├── skills/                    # Skills available in ALL your projects
 │   └── my-skill/
 │       └── SKILL.md
-├── settings.json              # Global hooks + permissions
-└── CLAUDE.md                  # Global instructions for Claude
+└── settings.json              # Global hooks + permissions
 ```
 
 - **NOT shared** with anyone
 - Available in **every project** you open
-- **Best for:** Personal shortcuts and preferences
+- **Best for:** Personal shortcuts, preferences, and global rules
 
 ### Level 3: Shared Toolkit (this repository)
 
 ```
-claude-code-toolkit/           # This repo
+claude-code-toolkit/           # This repo (you are here)
 ├── commands/                  # Catalog of reusable commands
 ├── hooks/scripts/             # Catalog of reusable hook scripts
+├── skills/                    # Catalog of reusable skills
 └── templates/                 # Ready-to-use settings.json files
 ```
 
@@ -208,23 +228,27 @@ claude-code-toolkit/           # This repo
 - Shared via git with the whole team
 - **Best for:** Standardizing practices across multiple projects
 
-### Summary
+### Summary Table
 
-| Scope | Location | Shared? | Available in |
-|-------|----------|---------|-------------|
-| **Project** | `your-project/.claude/` | Yes (git) | This project only |
-| **Personal** | `~/.claude/` | No | All your projects |
-| **Toolkit** | This repo | Yes (git) | Copy to project or personal |
+| File/Folder | Project (shared) | Project (personal) | Global (personal) |
+|-------------|-----------------|-------------------|-------------------|
+| **Instructions** | `CLAUDE.md` | `CLAUDE.local.md` | `~/.claude/CLAUDE.md` |
+| **Commands** | `.claude/commands/` | - | `~/.claude/commands/` |
+| **Skills** | `.claude/skills/` | - | `~/.claude/skills/` |
+| **Settings (hooks)** | `.claude/settings.json` | `.claude/settings.local.json` | `~/.claude/settings.json` |
 
 ### Decision Guide
 
 | You want to... | Put it in... |
 |----------------|-------------|
+| Set project rules for the whole team | `CLAUDE.md` (project, committed) |
+| Set personal preferences for this project | `CLAUDE.local.md` (project, NOT committed) |
+| Set personal rules for ALL your projects | `~/.claude/CLAUDE.md` (global) |
 | Share a command with your team for this project | `.claude/commands/` (project level) |
 | Have a personal shortcut for all projects | `~/.claude/commands/` (user level) |
 | Enforce a hook for the whole team | `.claude/settings.json` (project level) |
 | Have a personal hook only for you | `.claude/settings.local.json` (project level, not committed) |
-| Share a reusable command across all Bonita projects | This toolkit (copy to each project) |
+| Share reusable commands across all Bonita projects | This toolkit (copy to each project) |
 
 ---
 
