@@ -24,6 +24,10 @@ git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
   - [Project Resources](#project-resources)
 - [Installation Guide](#installation-guide)
 - [What are Commands, Hooks, Skills?](#what-are-commands-hooks-skills)
+- [Agents (Subagents)](#agents-subagents)
+- [MCP Skills](#mcp-skills)
+- [Plugins](#plugins)
+- [When to Use What](#when-to-use-what)
 - [Where to Define Things](#where-to-define-things)
 - [Repository Structure](#repository-structure)
 - [Contributing](#contributing)
@@ -37,7 +41,8 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 11 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 13 |
+| **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 4 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 17 |
 | **Hooks** | Automatic checks that fire without user action (format, style, compile) | 13 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
@@ -204,6 +209,8 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `testing-expert` | Unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT |
 | `bonita-integration-testing-expert` | Integration tests, controller testing, doHandle | Full lifecycle tests, HTTP status paths, Bonita mocking |
 | `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
+| `jira-workflow-expert` | Jira issues, sprints, transitions | Issue types, priorities, labels, workflows (MCP skill) |
+| `confluence-docs-expert` | Confluence pages, docs, specs | Page templates, structure, labels, writing style (MCP skill) |
 
 > **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
 
@@ -282,6 +289,7 @@ These resources **depend on the project type**. Install them in `.claude/` withi
 |----------|-----------------|-----------------|
 | `bonita-project.json` | Bonita BPM | All enterprise hooks + BDM/controller hooks + auto-test agent |
 | `java-library.json` | Java libraries | Enterprise hooks + test-pair check + auto-test agent |
+| `test-toolkit/` | Bonita Test Toolkit | Complete .claude/ dir with commands, hooks, skill, and agent for integration tests |
 | `CLAUDE.md.template` | Any project | Starter CLAUDE.md with team standards and TODO markers |
 | `claude-pr-review.yml` | Any project | GitHub Actions: compile, test, Checkstyle/PMD, coverage gate, optional Claude review |
 
@@ -485,6 +493,97 @@ You are an expert in Bonita BDM design...
 
 ---
 
+## Agents (Subagents)
+
+Agents are **isolated Claude instances** that receive a delegated task, work independently with their own context, and return results. Unlike skills (which inject knowledge into your conversation), agents run autonomously.
+
+**Key facts:**
+- Agents do NOT see your skills automatically — skills must be listed explicitly in the agent's `skills:` frontmatter
+- Each agent gets its own context window, isolated from your main conversation
+- Agents can have different `tools` and `model` than your main session
+- Install in `.claude/agents/` within your project (Project scope)
+
+### Available Agents
+
+| Agent | Skills Loaded | Best For |
+|-------|--------------|----------|
+| `bonita-code-reviewer` | coding-standards, rest-api-expert, testing-expert | PR reviews, module code reviews |
+| `bonita-test-generator` | testing-expert, integration-testing-expert | Batch test creation for modules |
+| `bonita-auditor` | audit-expert, coding-standards, bdm-expert, rest-api-expert, testing-expert | Full project audits with scoring |
+| `bonita-documentation-generator` | rest-api-expert, document-expert | Batch README and Javadoc generation |
+
+### Usage
+
+```
+You: delegate to bonita-code-reviewer: review the changes in this PR
+You: delegate to bonita-test-generator: create tests for the payment module
+You: delegate to bonita-auditor: run a full audit of this project
+You: delegate to bonita-documentation-generator: document all REST controllers
+```
+
+> See [agents/README.md](agents/README.md) for details.
+
+---
+
+## MCP Skills
+
+MCP servers provide **tools** (functions Claude can call). Skills teach Claude **how and when** to use those tools following team conventions. Together they form a powerful pattern:
+
+```
+MCP Server (provides tools) + Skill (teaches conventions) = Effective AI assistant
+```
+
+### Available MCP Skills
+
+| Skill | MCP Server | What it teaches |
+|-------|-----------|----------------|
+| `jira-workflow-expert` | Jira MCP | Issue types, priority rules, label conventions, workflow transitions |
+| `confluence-docs-expert` | Confluence MCP | Page templates, structure standards, label conventions, writing style |
+
+### Why MCP Skills Matter
+
+| Without skill | With skill |
+|---------------|-----------|
+| Claude creates Jira issues with generic descriptions | Claude follows your issue template (Story, Bug, Task) |
+| Claude assigns random priority | Claude uses your priority rules (Blocker → Same day SLA) |
+| Claude doesn't add labels | Claude adds required labels per component (`bdm`, `rest-api`, `process`) |
+| Claude creates Confluence pages with no structure | Claude applies page templates (Tech Spec, ADR, Runbook) |
+
+> MCP Skills should be deployed at **Enterprise scope** so all team members follow the same conventions.
+
+---
+
+## Plugins
+
+Plugins are **packaged Claude Code extensions** distributed through marketplaces (npm, GitHub). They use **namespaced names** (`plugin-name:skill-name`) and have **Priority 4** (lowest), so they never conflict with higher scopes.
+
+### Plugin Candidates from This Toolkit
+
+| Resource | Why Plugin? |
+|----------|-------------|
+| `testing-expert` | JUnit 5 + Mockito + AssertJ + jqwik patterns are universal |
+| `skill-creator` | Meta-skill useful for any Claude Code user |
+
+### Dual Publishing Strategy
+
+For generic skills, we recommend keeping them in the toolkit (Enterprise, Priority 1) AND publishing as plugins (Priority 4). Since Enterprise > Plugin, there's no conflict. External teams get the community version.
+
+> See [plugins/README.md](plugins/README.md) for publishing instructions.
+
+---
+
+## When to Use What
+
+Not sure which resource type to use? See **[WHEN_TO_USE_WHAT.md](WHEN_TO_USE_WHAT.md)** for:
+
+- Quick decision table
+- Detailed comparison of all 7 resource types
+- Decision flowchart
+- Scope matrix (what goes where)
+- Deep dives on Agents, Plugins, and MCP+Skills pattern
+
+---
+
 ## Where to Define Things
 
 ### Context Files (CLAUDE.md)
@@ -523,6 +622,12 @@ You are an expert in Bonita BDM design...
 
 ```
 claude-code-toolkit/
+├── agents/                            # ★☆☆ Project — delegated task agents
+│   ├── README.md
+│   ├── code-reviewer.md              # Code review with skills
+│   ├── test-generator.md             # Batch test creation with skills
+│   ├── bonita-auditor.md             # Full project audit with skills
+│   └── documentation-generator.md    # Batch documentation with skills
 ├── commands/
 │   ├── java-maven/                    # ★★☆ Personal — developer productivity
 │   │   ├── compile.md
@@ -599,8 +704,14 @@ claude-code-toolkit/
 │   │   ├── SKILL.md
 │   │   ├── references/               # bonita-test-harness, controller-test-patterns, dto-validation
 │   │   └── assets/IntegrationTestTemplate.java
-│   └── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
-│       └── SKILL.md
+│   ├── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
+│   │   └── SKILL.md
+│   ├── jira-workflow-expert/          # ★★★ Enterprise — MCP skill for Jira conventions
+│   │   ├── SKILL.md
+│   │   └── references/issue-templates.md
+│   └── confluence-docs-expert/        # ★★★ Enterprise — MCP skill for Confluence conventions
+│       ├── SKILL.md
+│       └── references/page-templates.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
 │   ├── pmd-ruleset.xml                # ★★★ Enterprise — static analysis
@@ -609,9 +720,15 @@ claude-code-toolkit/
 │   ├── bonita-project.json            # ★☆☆ Project — Bonita settings template
 │   ├── java-library.json              # ★☆☆ Project — Library settings template
 │   ├── CLAUDE.md.template             # ★☆☆ Project — Starter instructions
+│   ├── test-toolkit/                  # ★☆☆ Project — Bonita Test Toolkit template
+│   │   ├── README.md
+│   │   └── .claude/                   # Complete .claude/ dir for test projects
 │   └── github-actions/
 │       └── claude-pr-review.yml       # ★★★ Enterprise — CI/CD quality gates + Claude review
+├── plugins/
+│   └── README.md                      # Guide for publishing toolkit skills as plugins
 ├── install.sh                         # Automated installer script
+├── WHEN_TO_USE_WHAT.md                # Decision guide: when to use each resource type
 ├── README.md                          # This file
 ├── CONTRIBUTING.md                    # How to contribute to the toolkit
 └── ADOPTION_GUIDE.md                  # Step-by-step adoption guide
