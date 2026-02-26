@@ -37,9 +37,9 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API, Documents) | 3 |
+| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API, Documents, Testing...) | 7 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 15 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 9 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 10 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings and CLAUDE.md starter | 3 |
 
@@ -196,6 +196,10 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | countFor rule, naming conventions (`PB` prefix), descriptions, indexes |
 | `bonita-rest-api-expert` | User asks about REST API extensions, controllers | Abstract/Concrete pattern, README.md, Javadoc, test requirements |
 | `bonita-document-expert` | User asks about PDF, HTML reports, Word/Excel export, documents | Corporate branding (colors, logo, header/footer), BrandingConfig pattern, OpenPDF/Thymeleaf/POI stack |
+| `bonita-groovy-expert` | User asks about Groovy scripts in Bonita processes | Script standards, API accessor patterns, DAO access, null handling, max 30 lines |
+| `bonita-process-expert` | User asks about process modeling, .proc files, subprocesses | Process architecture, contracts, connectors, variables, subprocess reuse |
+| `testing-expert` | User asks about testing, unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT, `should_do_X_when_Y` naming |
+| `skill-creator` | User asks to create a new skill or SKILL.md | Anthropic methodology, frontmatter rules, naming, progressive disclosure |
 
 #### Enterprise Hooks
 
@@ -206,6 +210,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `check-code-style.sh` | PostToolUse (Edit/Write) | System.out.println, empty catch, methods > 30 lines, missing @Override |
 | `check-hardcoded-strings.sh` | PostToolUse (Edit) | Magic strings in comparisons and switch cases |
 | `check-document-pattern.sh` | PostToolUse (Edit/Write) | Document generation without BrandingConfig, hardcoded colors/fonts, iText usage |
+| `check-skill-structure.sh` | PostToolUse (Write/Edit) | SKILL.md structure validation: frontmatter, naming, description, required sections |
 
 #### Enterprise Configs
 
@@ -534,6 +539,7 @@ claude-code-toolkit/
 │       ├── check-code-style.sh        # ★★★ Enterprise — style standards
 │       ├── check-hardcoded-strings.sh # ★★★ Enterprise — constants policy
 │       ├── check-document-pattern.sh  # ★★★ Enterprise — corporate branding in documents
+│       ├── check-skill-structure.sh   # ★★★ Enterprise — SKILL.md methodology validation
 │       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
 │       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
@@ -543,7 +549,15 @@ claude-code-toolkit/
 │   │   └── SKILL.md
 │   ├── bonita-rest-api-expert/        # ★★★ Enterprise — company REST API patterns
 │   │   └── SKILL.md
-│   └── bonita-document-expert/       # ★★★ Enterprise — corporate document generation
+│   ├── bonita-document-expert/        # ★★★ Enterprise — corporate document generation
+│   │   └── SKILL.md
+│   ├── bonita-groovy-expert/          # ★★★ Enterprise — Groovy scripts in Bonita
+│   │   └── SKILL.md
+│   ├── bonita-process-expert/         # ★★★ Enterprise — process modeling patterns
+│   │   └── SKILL.md
+│   ├── testing-expert/                # ★★★ Enterprise — comprehensive testing strategy
+│   │   └── SKILL.md
+│   └── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
 │       └── SKILL.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
