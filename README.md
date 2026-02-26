@@ -727,7 +727,8 @@ claude-code-toolkit/
 │       └── claude-pr-review.yml       # ★★★ Enterprise — CI/CD quality gates + Claude review
 ├── plugins/
 │   └── README.md                      # Guide for publishing toolkit skills as plugins
-├── install.sh                         # Automated installer script
+├── install.sh                         # Interactive installer (prompts for scope/type)
+├── setup-dev-env.sh                   # Non-interactive installer (--personal, --project, --list)
 ├── WHEN_TO_USE_WHAT.md                # Decision guide: when to use each resource type
 ├── README.md                          # This file
 ├── CONTRIBUTING.md                    # How to contribute to the toolkit
@@ -758,8 +759,47 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 
 ## Projects Using This Toolkit
 
-- [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) — Bonita BPM Process Builder
-- [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) — Shared Java library
+### PS Toolkit Repos (bonitasoft-ps)
+
+| Repository | Skills | Hooks | Commands |
+|-----------|--------|-------|----------|
+| [bonita-upgrade-toolkit](https://github.com/bonitasoft-ps/bonita-upgrade-toolkit) | 10 | 2 | 6 |
+| [bonita-audit-toolkit](https://github.com/bonitasoft-ps/bonita-audit-toolkit) | 12 | 3 | 7 |
+| [bonita-connectors-generator-toolkit](https://github.com/bonitasoft-ps/bonita-connectors-generator-toolkit) | 5 | 4 | 9 |
+| [bonita-ps-mcp](https://github.com/bonitasoft-ps/bonita-ps-mcp) | 1 | 1 | 4 |
+| [template-test-toolkit](https://github.com/bonitasoft-ps/template-test-toolkit) | 1 | 3 | 0 |
+
+### Presales Projects (bonitasoft-presales)
+
+| Repository | Description |
+|-----------|-------------|
+| [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) | Bonita BPM Process Builder |
+| [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) | Shared Java library |
+
+### Quick Setup
+
+For PS team members, the fastest way to get everything configured:
+
+```bash
+# Clone bonita-ps-mcp and run the all-in-one setup
+git clone git@github.com:bonitasoft-ps/bonita-ps-mcp.git
+bash bonita-ps-mcp/scripts/setup-ps-tools.sh ~/ps-tools
+```
+
+This clones all 6 repos, installs MCP dependencies, configures personal commands, and generates the Claude Desktop config.
+
+Alternatively, use the non-interactive installer directly:
+
+```bash
+# Install personal commands only
+bash setup-dev-env.sh --personal
+
+# Configure a specific project
+bash setup-dev-env.sh --project /path/to/project --project-type bonita
+
+# See what's available
+bash setup-dev-env.sh --list
+```
 
 ---
 
