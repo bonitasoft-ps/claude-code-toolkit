@@ -1,0 +1,522 @@
+/*
+ * Bonitasoft Corporate Document Stylesheet
+ * =========================================
+ * Used for HTML reports, email templates, and PDF generation (via Flying Saucer).
+ *
+ * IMPORTANT: Flying Saucer does NOT support CSS variables (var(--name)).
+ * For PDF output, use Thymeleaf inline styles with BrandingConfig values,
+ * or use the direct hex values in a separate PDF-specific stylesheet.
+ *
+ * For HTML-only output (browser rendering), CSS variables work perfectly.
+ */
+
+/* =========================================================================
+   CSS VARIABLES (for HTML output only - NOT supported in Flying Saucer PDF)
+   ========================================================================= */
+
+:root {
+    /* Brand Colors */
+    --primary-color: #2C3E7A;
+    --secondary-color: #E97826;
+    --success-color: #4CAF50;
+    --warning-color: #FF9800;
+    --error-color: #F44336;
+
+    /* Text Colors */
+    --text-color: #333333;
+    --text-light: #666666;
+    --text-white: #FFFFFF;
+
+    /* Background Colors */
+    --bg-color: #FFFFFF;
+    --bg-alt: #F5F7FA;
+
+    /* Border */
+    --border-color: #E0E0E0;
+
+    /* Typography */
+    --font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    --font-mono: Consolas, Monaco, 'Courier New', monospace;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* =========================================================================
+   PAGE SETUP (for PDF via Flying Saucer)
+   ========================================================================= */
+
+@page {
+    size: A4;
+    margin: 2.5cm 2cm 3cm 2cm;
+
+    @bottom-right {
+        content: "Page " counter(page) " / " counter(pages);
+        font-size: 9pt;
+        color: #666666;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+}
+
+/* =========================================================================
+   BASE STYLES
+   ========================================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #333333;
+    background-color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================================================================
+   HEADINGS
+   ========================================================================= */
+
+h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    color: #2C3E7A;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #2C3E7A;
+    margin: 24px 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #E0E0E0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #2C3E7A;
+    margin: 18px 0 8px 0;
+    line-height: 1.3;
+}
+
+h4 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #333333;
+    margin: 16px 0 6px 0;
+    line-height: 1.3;
+}
+
+/* =========================================================================
+   PARAGRAPHS AND TEXT
+   ========================================================================= */
+
+p {
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+}
+
+.text-primary { color: #2C3E7A; }
+.text-secondary { color: #E97826; }
+.text-success { color: #4CAF50; }
+.text-warning { color: #FF9800; }
+.text-error { color: #F44336; }
+.text-muted { color: #666666; }
+.text-bold { font-weight: bold; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-small { font-size: 9pt; }
+
+/* =========================================================================
+   DOCUMENT HEADER
+   ========================================================================= */
+
+.document-header {
+    display: table;
+    width: 100%;
+    border-bottom: 3px solid #2C3E7A;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+}
+
+.header-logo {
+    display: table-cell;
+    vertical-align: middle;
+    width: 30%;
+}
+
+.header-logo img {
+    height: 40px;
+    max-width: 150px;
+}
+
+.header-title {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 40%;
+}
+
+.header-title h1 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.header-title .subtitle {
+    margin: 4px 0 0 0;
+    font-size: 12pt;
+    color: #666666;
+}
+
+.header-client {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+    width: 30%;
+}
+
+.header-client img {
+    height: 35px;
+    max-width: 120px;
+}
+
+/* =========================================================================
+   TABLES
+   ========================================================================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+}
+
+thead th {
+    background-color: #2C3E7A;
+    color: #FFFFFF;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 10pt;
+    border: 1px solid #2C3E7A;
+}
+
+tbody td {
+    padding: 6px 12px;
+    border: 1px solid #E0E0E0;
+    font-size: 10pt;
+    color: #333333;
+    vertical-align: top;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #F5F7FA;
+}
+
+tbody tr:hover {
+    background-color: #EEF1F7;
+}
+
+/* Prevent table rows from splitting across pages (PDF) */
+table tr {
+    page-break-inside: avoid;
+}
+
+/* Total/summary row */
+tfoot td {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-top: 2px solid #2C3E7A;
+    color: #2C3E7A;
+    font-size: 11pt;
+}
+
+/* =========================================================================
+   DOCUMENT FOOTER
+   ========================================================================= */
+
+.document-footer {
+    border-top: 2px solid #2C3E7A;
+    padding-top: 8px;
+    margin-top: 32px;
+    font-size: 9pt;
+    color: #666666;
+    text-align: center;
+}
+
+.document-footer span {
+    display: inline;
+}
+
+/* =========================================================================
+   CODE BLOCKS
+   ========================================================================= */
+
+code {
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 10pt;
+    background-color: #F5F7FA;
+    padding: 2px 6px;
+    border: 1px solid #E0E0E0;
+    border-radius: 3px;
+    color: #333333;
+}
+
+pre {
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 10pt;
+    background-color: #F5F7FA;
+    border: 1px solid #E0E0E0;
+    border-left: 3px solid #2C3E7A;
+    padding: 12px 16px;
+    margin: 16px 0;
+    overflow-x: auto;
+    line-height: 1.4;
+    color: #333333;
+}
+
+pre code {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* =========================================================================
+   STATUS BADGES
+   ========================================================================= */
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 9pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-success {
+    background-color: #4CAF50;
+}
+
+.badge-warning {
+    background-color: #FF9800;
+}
+
+.badge-error {
+    background-color: #F44336;
+}
+
+.badge-info {
+    background-color: #2C3E7A;
+}
+
+.badge-secondary {
+    background-color: #E97826;
+}
+
+.badge-neutral {
+    background-color: #666666;
+}
+
+/* Outline variants */
+.badge-outline-success {
+    background-color: transparent;
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+}
+
+.badge-outline-warning {
+    background-color: transparent;
+    border: 1px solid #FF9800;
+    color: #FF9800;
+}
+
+.badge-outline-error {
+    background-color: transparent;
+    border: 1px solid #F44336;
+    color: #F44336;
+}
+
+/* =========================================================================
+   SUMMARY CARDS
+   ========================================================================= */
+
+.summary-row {
+    display: table;
+    width: 100%;
+    margin: 16px 0;
+}
+
+.summary-card {
+    display: table-cell;
+    text-align: center;
+    padding: 16px 12px;
+    border: 1px solid #E0E0E0;
+    background-color: #FFFFFF;
+}
+
+.summary-card .value {
+    font-size: 28pt;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.summary-card .label {
+    font-size: 9pt;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* =========================================================================
+   ALERT / INFO BOXES
+   ========================================================================= */
+
+.alert {
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 10pt;
+}
+
+.alert-info {
+    border-left-color: #2C3E7A;
+    background-color: #EEF1F7;
+    color: #2C3E7A;
+}
+
+.alert-success {
+    border-left-color: #4CAF50;
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+.alert-warning {
+    border-left-color: #FF9800;
+    background-color: #FFF8E1;
+    color: #E65100;
+}
+
+.alert-error {
+    border-left-color: #F44336;
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+/* =========================================================================
+   UTILITY CLASSES
+   ========================================================================= */
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 32px; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.mb-4 { margin-bottom: 32px; }
+
+.p-1 { padding: 8px; }
+.p-2 { padding: 16px; }
+.p-3 { padding: 24px; }
+
+.border { border: 1px solid #E0E0E0; }
+.border-top { border-top: 1px solid #E0E0E0; }
+.border-bottom { border-bottom: 1px solid #E0E0E0; }
+
+.bg-alt { background-color: #F5F7FA; }
+.bg-white { background-color: #FFFFFF; }
+
+/* =========================================================================
+   PAGE BREAKS (for PDF)
+   ========================================================================= */
+
+.page-break-before {
+    page-break-before: always;
+}
+
+.page-break-after {
+    page-break-after: always;
+}
+
+.no-break {
+    page-break-inside: avoid;
+}
+
+/* =========================================================================
+   PRINT-SPECIFIC STYLES
+   ========================================================================= */
+
+@media print {
+    body {
+        font-size: 10pt;
+        color: #000000;
+        background: none;
+    }
+
+    .document-header {
+        border-bottom-color: #000000;
+    }
+
+    .document-footer {
+        border-top-color: #000000;
+    }
+
+    thead th {
+        background-color: #2C3E7A !important;
+        color: #FFFFFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #F5F7FA !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    a {
+        color: #333333;
+        text-decoration: none;
+    }
+
+    /* Ensure page breaks work in print */
+    .page-break-before {
+        page-break-before: always;
+    }
+
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    table tr {
+        page-break-inside: avoid;
+    }
+}

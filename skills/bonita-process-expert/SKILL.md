@@ -10,46 +10,90 @@ You are an expert in Bonita BPM/BPA process design and implementation. Your role
 
 ## When activated
 
-1. **Read project context**: `context-ia/01-architecture.mdc` (if it exists)
-2. **List all processes**: Check `app/diagrams/` for `.proc` files
-3. **Read process overview**: `context-ia/00-overview.mdc` (if it exists)
-4. **Check existing subprocesses**: Identify reusable subprocesses before creating new ones
+1. **List all processes**: Check `app/diagrams/` for `.proc` files to understand the current process landscape
+2. **Check existing subprocesses**: Before creating any new logic, identify reusable subprocesses already in the project
+3. **Read references for specific topics**:
+   - For BPM modeling standards and conventions, read `references/bpm-standards.md`
+   - For the 3-level process architecture methodology, read `references/process-tiering.md`
+   - For contract design patterns, read `references/contract-patterns.md`
+   - For connector and error handling patterns, read `references/connector-error-patterns.md`
 
-## Process Architecture Patterns
+## Process File Structure
 
-### Process File Structure
 - Process definitions are in `app/diagrams/*.proc` (XML format)
 - Each `.proc` file contains pools, lanes, tasks, gateways, events, connectors, and scripts
 - Process versions follow `ProcessName-X.Y.proc` naming convention
-- Multiple processes can exist in a single diagram
+- A single diagram should represent a single business process (meta-diagrams exception)
 
-### Subprocess Reuse (Critical)
+## Subprocess Reuse (Critical)
+
 Before creating new process logic, ALWAYS:
-1. Run `/check-existing-processes` to find similar logic
+
+1. Search `app/diagrams/` for existing `.proc` files with similar logic
 2. Check for existing call activities and subprocesses
 3. Recommend creating a subprocess if logic is used in 2+ processes
 4. Subprocesses should be self-contained with clear contract inputs/outputs
 
-### Process Design Rules
+## Mandatory Process Design Rules
+
+These rules MUST be followed in every process:
+
+### Structure
 - **One pool per process**: Never mix multiple business processes in one pool
 - **Use subprocesses** for reusable flows (notification, approval, escalation)
-- **Contracts** define the API: every start event and human task MUST have a contract
-- **Actors** map to organization: use role-based or group-based actor filters
-- **Timers** for SLA: use timer events for deadlines, reminders, escalations
-- **Gateways**: Prefer exclusive (XOR) for decisions, parallel (AND) for concurrent flows
+- **Single diagram per business process** (meta-diagrams can link to sub-processes)
 
-### Variable Management
-- **Process variables**: Defined at pool level, available throughout the process
+### Contracts
+- **Contracts at start events and human tasks**: Every start event and human task MUST have a contract
+- Start contracts define ALL input parameters needed to start a process
+- Task contracts define only what changes at that step
+- Use complex types for structured data; validate with constraints
+
+### Actors
+- **Actors mapped to organization**: Use role-based or group-based actor filters
+- Lane names: prefix + actor type (e.g., `adm_administrator`)
+
+### Timers and Events
+- **Timers for SLA**: Use timer events for deadlines, reminders, escalations
+- Define messages carefully to avoid infinite listening (causes database growth)
+
+### Gateways
+- **Exclusive (XOR)**: For decisions -- add explicit name, name each transition, always add default transition
+- **Parallel (AND)**: For concurrent flows -- hide names for parallel/merge gateways
+- **Never use implicit gateways**
+
+### Variables
+- **Naming**: camelCase, descriptive names (e.g., `currentProcess`, `selectedActions`)
+- **Process variables**: ONLY primitives, String, List/Array (of primitives or String), Map
+- **Process variables vs BDM**: If the object can be stored in BDM (has business meaning), do NOT use a process variable
 - **Business variables**: BDM objects stored persistently, survive process completion
 - **Local variables**: Scoped to a specific task or subprocess
 - **Transient variables**: Not persisted, used for temporary calculations
-- **Naming**: camelCase, descriptive names (e.g., `currentProcess`, `selectedActions`)
 
-### Connector Patterns
+### Task Types
+- **Service task**: API calls and external integrations
+- **Script task**: Internal scripts (e.g., status updates)
+- Use verbs for task names to make the action clear
+- Meaningful element names -- NEVER use Gate1, Start1, End1, Step1
+
+### Flow Control
+- Avoid infinite multi-instances
+- Avoid infinite cyclic flows (always a condition for termination + "manual" option)
+- Use links to improve diagram readability
+- Use "end" not "terminal" for consistency in naming
+
+### Operations
+- Leave heavy tasks to connectors; operations for simpler functionality (assignments)
+- Avoid multiple operations updating the same object (prefer "takes value of")
+- When updating an object with multiple attributes, perform the update in a single operation
+
+## Connector Patterns
+
 - **Email**: Use SMTP connector with templates from PBConfiguration
 - **REST API**: Use REST connector or custom REST API extensions
 - **Database**: Prefer BDM over direct DB connectors
 - **Custom**: Use Groovy connectors for complex integrations
+- **Error handling**: MANDATORY try-catch with detailed logging in every connector
 
 ## Comparing Process Versions
 
@@ -61,26 +105,6 @@ When the user asks to compare process versions:
 4. **Report differences**: What was added, removed, or modified
 5. **Highlight breaking changes**: Contract changes, variable removals, connector modifications
 
-## Contract Design
-
-### Start Contracts
-- Define ALL input parameters needed to start a process
-- Use complex types for structured data (maps, lists of objects)
-- Validate inputs with contract constraints
-- Document each input with a description
-
-### Task Contracts
-- Define what the user submits at each human task
-- Keep contracts minimal — only what changes at that step
-- Use the `mandatoryExpression` for conditional requirements
-
-## Error Handling in Processes
-
-- **Error boundary events**: Catch connector failures, script errors
-- **Error end events**: Terminate process with error status
-- **Compensation**: Use compensation handlers for rollback scenarios
-- **Retry patterns**: Timer + loop for transient failures
-
 ## When the user asks about processes
 
 1. **List existing processes**: Show all `.proc` files with their purpose
@@ -88,3 +112,14 @@ When the user asks to compare process versions:
 3. **Follow patterns**: Use established patterns for connectors, scripts, variables
 4. **Validate architecture**: Ensure process follows Bonita best practices
 5. **Suggest improvements**: Identify opportunities for subprocess extraction, error handling, optimization
+
+## Reference Documents
+
+For detailed guidance on specific topics, read the corresponding reference file:
+
+| Topic | Reference File |
+|-------|---------------|
+| BPM modeling standards and naming conventions | `references/bpm-standards.md` |
+| 3-level process architecture methodology | `references/process-tiering.md` |
+| Contract design patterns and examples | `references/contract-patterns.md` |
+| Connector and error handling patterns | `references/connector-error-patterns.md` |

@@ -1,0 +1,61 @@
+<!--
+  Bonitasoft Logo Placeholder
+  ============================
+  This is a text-based SVG placeholder for the Bonitasoft logo.
+  It uses the brand primary color (#2C3E7A) with clean typography.
+
+  TO REPLACE WITH THE REAL LOGO:
+  1. Obtain the official Bonitasoft logo in SVG format from the brand assets
+  2. Replace the entire contents of this file with the official SVG
+  3. Ensure the viewBox maintains a similar aspect ratio (approx 4:1)
+  4. For PNG usage in documents, export at 300 DPI and save as:
+     src/main/resources/templates/images/bonitasoft-logo.png
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 400 100"
+     width="400"
+     height="100"
+     role="img"
+     aria-label="Bonitasoft Logo">
+
+  <title>Bonitasoft</title>
+
+  <!-- Background (transparent) -->
+  <rect width="400" height="100" fill="none" />
+
+  <!-- Logo mark: stylized "B" icon -->
+  <g transform="translate(10, 10)">
+    <!-- Rounded rectangle background -->
+    <rect x="0" y="0" width="80" height="80" rx="12" ry="12" fill="#2C3E7A" />
+
+    <!-- Stylized "B" letterform -->
+    <path d="M24 20 L24 60 L48 60 Q60 60 60 50 Q60 42 50 40 Q58 38 58 30 Q58 20 48 20 Z
+             M34 28 L44 28 Q48 28 48 32 Q48 36 44 36 L34 36 Z
+             M34 44 L46 44 Q50 44 50 48 Q50 52 46 52 L34 52 Z"
+          fill="#FFFFFF" />
+
+    <!-- Accent dot -->
+    <circle cx="66" cy="24" r="6" fill="#E97826" />
+  </g>
+
+  <!-- "Bonitasoft" text -->
+  <text x="105" y="62"
+        font-family="'Helvetica Neue', Arial, Helvetica, sans-serif"
+        font-size="42"
+        font-weight="600"
+        fill="#2C3E7A"
+        letter-spacing="-0.5">
+    <tspan>Bonita</tspan><tspan font-weight="400">soft</tspan>
+  </text>
+
+  <!-- Tagline (optional - can be removed) -->
+  <text x="107" y="80"
+        font-family="'Helvetica Neue', Arial, Helvetica, sans-serif"
+        font-size="12"
+        font-weight="400"
+        fill="#666666"
+        letter-spacing="2">
+    PROCESS AUTOMATION
+  </text>
+
+</svg>

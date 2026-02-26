@@ -37,7 +37,7 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API, Documents, Testing...) | 7 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 10 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 15 |
 | **Hooks** | Automatic checks that fire without user action (format, style, compile) | 10 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
@@ -193,13 +193,18 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 
 | Skill | Auto-invokes when... | What it enforces |
 |-------|---------------------|-----------------|
-| `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | countFor rule, naming conventions (`PB` prefix), descriptions, indexes |
-| `bonita-rest-api-expert` | User asks about REST API extensions, controllers | Abstract/Concrete pattern, README.md, Javadoc, test requirements |
-| `bonita-document-expert` | User asks about PDF, HTML reports, Word/Excel export, documents | Corporate branding (colors, logo, header/footer), BrandingConfig pattern, OpenPDF/Thymeleaf/POI stack |
-| `bonita-groovy-expert` | User asks about Groovy scripts in Bonita processes | Script standards, API accessor patterns, DAO access, null handling, max 30 lines |
-| `bonita-process-expert` | User asks about process modeling, .proc files, subprocesses | Process architecture, contracts, connectors, variables, subprocess reuse |
-| `testing-expert` | User asks about testing, unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT, `should_do_X_when_Y` naming |
-| `skill-creator` | User asks to create a new skill or SKILL.md | Anthropic methodology, frontmatter rules, naming, progressive disclosure |
+| `bonita-bdm-expert` | BDM, queries, JPQL, data model | countFor, naming (`PB` prefix), indexes, descriptions |
+| `bonita-rest-api-expert` | REST API extensions, controllers | Abstract/Concrete pattern, README, DTOs, OpenAPI |
+| `bonita-document-expert` | PDF, HTML, Word/Excel, branding | BrandingConfig, corporate CSS, logo, OpenPDF/Thymeleaf/POI |
+| `bonita-groovy-expert` | Groovy scripts in Bonita processes | API accessor, DAO, script extraction from .proc |
+| `bonita-process-expert` | Process modeling, .proc files | 3-level tiering, contracts, connectors, subprocess reuse |
+| `bonita-uib-expert` | UI Builder, Appsmith pages, widgets | Naming, async/await, JS Objects, bonita-api-plugin |
+| `bonita-coding-standards` | Code quality, Java 17, clean code | SRP, method length, Javadoc, Checkstyle, PMD |
+| `bonita-audit-expert` | Code audits, quality reports | Backend + UIB audit templates, automated checks |
+| `testing-expert` | Unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT |
+| `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
+
+> **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
 
 #### Enterprise Hooks
 
@@ -545,18 +550,41 @@ claude-code-toolkit/
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
 │       └── check-test-pair.sh         # ★☆☆ Project — libraries only
 ├── skills/
-│   ├── bonita-bdm-expert/             # ★★★ Enterprise — company BDM knowledge
-│   │   └── SKILL.md
-│   ├── bonita-rest-api-expert/        # ★★★ Enterprise — company REST API patterns
-│   │   └── SKILL.md
+│   ├── bonita-bdm-expert/             # ★★★ Enterprise — BDM & data model
+│   │   ├── SKILL.md
+│   │   ├── references/                # datamodel-rules, query-patterns, access-control
+│   │   └── scripts/validate-bdm.sh
+│   ├── bonita-rest-api-expert/        # ★★★ Enterprise — REST API patterns
+│   │   ├── SKILL.md
+│   │   ├── references/                # controller-checklist, dto-patterns, readme-template, openapi
+│   │   ├── scripts/check-controller.sh
+│   │   └── assets/controller-readme-template.md
 │   ├── bonita-document-expert/        # ★★★ Enterprise — corporate document generation
-│   │   └── SKILL.md
+│   │   ├── SKILL.md
+│   │   ├── references/                # pdf-generation, office-generation, thymeleaf, maven-deps
+│   │   └── assets/                    # BrandingConfig.java, corporate.css, bonitasoft-logo.svg
 │   ├── bonita-groovy-expert/          # ★★★ Enterprise — Groovy scripts in Bonita
-│   │   └── SKILL.md
-│   ├── bonita-process-expert/         # ★★★ Enterprise — process modeling patterns
-│   │   └── SKILL.md
-│   ├── testing-expert/                # ★★★ Enterprise — comprehensive testing strategy
-│   │   └── SKILL.md
+│   │   ├── SKILL.md
+│   │   └── references/               # bonita-api-patterns, proc-script-extraction, common-patterns
+│   ├── bonita-process-expert/         # ★★★ Enterprise — process modeling
+│   │   ├── SKILL.md
+│   │   └── references/               # bpm-standards, process-tiering, contracts, connector-errors
+│   ├── bonita-uib-expert/            # ★★★ Enterprise — UI Builder (Appsmith)
+│   │   ├── SKILL.md
+│   │   ├── references/               # widgets, api-actions, js-patterns, header, charts, naming, xml, troubleshooting
+│   │   └── scripts/validate-uib-naming.sh
+│   ├── bonita-coding-standards/       # ★★★ Enterprise — Java 17 & clean code
+│   │   ├── SKILL.md
+│   │   ├── references/               # java17-patterns, delivery-checklist, connectors, deployment
+│   │   └── scripts/check-code-quality.sh
+│   ├── bonita-audit-expert/           # ★★★ Enterprise — code audits & reports
+│   │   ├── SKILL.md
+│   │   ├── references/               # backend-audit-template, uib-audit-template, audit-checklist
+│   │   └── scripts/                  # generate-audit-report.sh, run-audit-checks.sh
+│   ├── testing-expert/                # ★★★ Enterprise — comprehensive testing
+│   │   ├── SKILL.md
+│   │   ├── references/               # junit5, property-testing, mutation-testing, bonita-mocking
+│   │   └── scripts/                  # run-tests.sh, check-coverage.sh
 │   └── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
 │       └── SKILL.md
 ├── configs/
