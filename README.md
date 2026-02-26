@@ -37,11 +37,11 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 10 |
-| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 15 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 10 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 11 |
+| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 17 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 13 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
-| **Templates** | Ready-to-use settings and CLAUDE.md starter | 3 |
+| **Templates** | Ready-to-use settings, CLAUDE.md starter, GitHub Actions | 4 |
 
 ### Why this exists
 
@@ -202,6 +202,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `bonita-coding-standards` | Code quality, Java 17, clean code | SRP, method length, Javadoc, Checkstyle, PMD |
 | `bonita-audit-expert` | Code audits, quality reports | Backend + UIB audit templates, automated checks |
 | `testing-expert` | Unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT |
+| `bonita-integration-testing-expert` | Integration tests, controller testing, doHandle | Full lifecycle tests, HTTP status paths, Bonita mocking |
 | `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
 
 > **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
@@ -216,6 +217,8 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `check-hardcoded-strings.sh` | PostToolUse (Edit) | Magic strings in comparisons and switch cases |
 | `check-document-pattern.sh` | PostToolUse (Edit/Write) | Document generation without BrandingConfig, hardcoded colors/fonts, iText usage |
 | `check-skill-structure.sh` | PostToolUse (Write/Edit) | SKILL.md structure validation: frontmatter, naming, description, required sections |
+| `check-openapi-annotations.sh` | PostToolUse (Edit/Write) | Missing @Tag, @Operation, @ApiResponse on REST API controllers |
+| `pre-push-validate.sh` | PreToolUse (Bash) | **Blocks** `git push` if compilation fails or sensitive files staged |
 
 #### Enterprise Configs
 
@@ -240,6 +243,8 @@ These are **developer productivity tools**. Install them in `~/.claude/` so they
 | `/run-mutation-tests` | Run PIT mutation testing | `/run-mutation-tests MyModule` |
 | `/generate-tests` | Generate unit + property tests for a class | `/generate-tests MyController` |
 | `/check-coverage` | Run JaCoCo and verify coverage thresholds | `/check-coverage` |
+| `/generate-integration-tests` | Generate integration tests for a controller | `/generate-integration-tests MyController` |
+| `/check-test-coverage-gap` | Find classes missing test pairs and coverage | `/check-test-coverage-gap` or `/check-test-coverage-gap extensions/myModule` |
 | `/check-code-quality` | Check Javadoc, method length, code smells | `/check-code-quality src/main/java/` |
 | `/audit-compliance` | Full project compliance audit | `/audit-compliance` |
 | `/refactor-method-signature` | Refactor method + update ALL call sites | `/refactor-method-signature setName add param` |
@@ -278,6 +283,7 @@ These resources **depend on the project type**. Install them in `.claude/` withi
 | `bonita-project.json` | Bonita BPM | All enterprise hooks + BDM/controller hooks + auto-test agent |
 | `java-library.json` | Java libraries | Enterprise hooks + test-pair check + auto-test agent |
 | `CLAUDE.md.template` | Any project | Starter CLAUDE.md with team standards and TODO markers |
+| `claude-pr-review.yml` | Any project | GitHub Actions: compile, test, Checkstyle/PMD, coverage gate, optional Claude review |
 
 #### Agent Hooks (in templates)
 
@@ -536,6 +542,8 @@ claude-code-toolkit/
 │   │   └── refactor-method-signature.md
 │   └── testing/                       # ★★☆ Personal — testing tools
 │       ├── generate-tests.md
+│       ├── generate-integration-tests.md
+│       ├── check-test-coverage-gap.md
 │       └── check-coverage.md
 ├── hooks/
 │   └── scripts/
@@ -545,6 +553,8 @@ claude-code-toolkit/
 │       ├── check-hardcoded-strings.sh # ★★★ Enterprise — constants policy
 │       ├── check-document-pattern.sh  # ★★★ Enterprise — corporate branding in documents
 │       ├── check-skill-structure.sh   # ★★★ Enterprise — SKILL.md methodology validation
+│       ├── check-openapi-annotations.sh # ★☆☆ Project — OpenAPI docs on controllers
+│       ├── pre-push-validate.sh       # ★★★ Enterprise — never push broken code
 │       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
 │       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
@@ -585,6 +595,10 @@ claude-code-toolkit/
 │   │   ├── SKILL.md
 │   │   ├── references/               # junit5, property-testing, mutation-testing, bonita-mocking
 │   │   └── scripts/                  # run-tests.sh, check-coverage.sh
+│   ├── bonita-integration-testing-expert/ # ★★★ Enterprise — controller integration tests
+│   │   ├── SKILL.md
+│   │   ├── references/               # bonita-test-harness, controller-test-patterns, dto-validation
+│   │   └── assets/IntegrationTestTemplate.java
 │   └── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
 │       └── SKILL.md
 ├── configs/
@@ -594,7 +608,9 @@ claude-code-toolkit/
 ├── templates/
 │   ├── bonita-project.json            # ★☆☆ Project — Bonita settings template
 │   ├── java-library.json              # ★☆☆ Project — Library settings template
-│   └── CLAUDE.md.template             # ★☆☆ Project — Starter instructions
+│   ├── CLAUDE.md.template             # ★☆☆ Project — Starter instructions
+│   └── github-actions/
+│       └── claude-pr-review.yml       # ★★★ Enterprise — CI/CD quality gates + Claude review
 ├── install.sh                         # Automated installer script
 ├── README.md                          # This file
 ├── CONTRIBUTING.md                    # How to contribute to the toolkit

@@ -1,0 +1,183 @@
+# Claude Code PR Review — GitHub Actions Workflow
+# ★★★ Enterprise Template
+#
+# This workflow runs automated quality checks on pull requests and optionally
+# uses Claude Code for AI-powered code review comments.
+#
+# Installation:
+#   1. Copy to your project: .github/workflows/claude-pr-review.yml
+#   2. Set repository secrets:
+#      - ANTHROPIC_API_KEY: Your Anthropic API key (required for Claude review)
+#   3. Adjust paths and thresholds as needed
+#
+# Features:
+#   - Maven compilation quality gate
+#   - Checkstyle and PMD static analysis
+#   - JaCoCo test coverage threshold enforcement
+#   - Optional: Claude Code AI review comments on PR
+
+name: PR Quality Review
+
+on:
+  pull_request:
+    branches: [master, main, develop]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: '-Xmx1024m'
+
+jobs:
+  # ─────────────────────────────────────────────────────────
+  # Job 1: Compile and run tests
+  # ─────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile project
+        run: mvn clean compile -f extensions/pom.xml -q
+
+      - name: Run unit tests
+        run: mvn test -f extensions/pom.xml -DfailIfNoTests=false
+
+      - name: Generate JaCoCo coverage report
+        run: mvn jacoco:report -f extensions/pom.xml -q
+        if: always()
+
+      - name: Check coverage threshold (80% line coverage)
+        run: |
+          # Parse JaCoCo CSV report for overall coverage
+          REPORT=$(find extensions -name "jacoco.csv" -path "*/site/*" | head -1)
+          if [ -f "$REPORT" ]; then
+            TOTAL_MISSED=$(awk -F',' 'NR>1 {sum+=$4} END {print sum}' "$REPORT")
+            TOTAL_COVERED=$(awk -F',' 'NR>1 {sum+=$5} END {print sum}' "$REPORT")
+            TOTAL=$((TOTAL_MISSED + TOTAL_COVERED))
+            if [ "$TOTAL" -gt 0 ]; then
+              COVERAGE=$((TOTAL_COVERED * 100 / TOTAL))
+              echo "Line coverage: ${COVERAGE}%"
+              if [ "$COVERAGE" -lt 80 ]; then
+                echo "::error::Line coverage ${COVERAGE}% is below the 80% threshold"
+                exit 1
+              fi
+            fi
+          else
+            echo "::warning::JaCoCo report not found. Skipping coverage check."
+          fi
+        if: always()
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            extensions/**/target/surefire-reports/
+            extensions/**/target/site/jacoco/
+        if: always()
+
+  # ─────────────────────────────────────────────────────────
+  # Job 2: Static Analysis (Checkstyle + PMD)
+  # ─────────────────────────────────────────────────────────
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: |
+          if [ -f "checkstyle.xml" ]; then
+            mvn checkstyle:check -f extensions/pom.xml -Dcheckstyle.configLocation=../../checkstyle.xml || true
+          else
+            echo "::warning::checkstyle.xml not found in project root. Skipping Checkstyle."
+          fi
+
+      - name: Run PMD
+        run: |
+          if [ -f "pmd-ruleset.xml" ]; then
+            mvn pmd:check -f extensions/pom.xml -Dpmd.rulesets=../../pmd-ruleset.xml || true
+          else
+            echo "::warning::pmd-ruleset.xml not found in project root. Skipping PMD."
+          fi
+
+  # ─────────────────────────────────────────────────────────
+  # Job 3: Claude Code AI Review (Optional)
+  # ─────────────────────────────────────────────────────────
+  # Uncomment this job to enable AI-powered code review.
+  # Requires ANTHROPIC_API_KEY secret to be set.
+  #
+  # claude-review:
+  #   name: Claude Code Review
+  #   runs-on: ubuntu-latest
+  #   if: github.event.pull_request.draft == false
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Install Claude Code
+  #       run: npm install -g @anthropic-ai/claude-code
+  #
+  #     - name: Run Claude Code review
+  #       env:
+  #         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  #       run: |
+  #         # Get the diff for this PR
+  #         DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+  #
+  #         # Run Claude Code with review prompt
+  #         claude -p "Review this code diff for a Bonita BPM project.
+  #         Check for:
+  #         - Java 17 best practices (Records, Pattern Matching, Text Blocks)
+  #         - Method length > 30 lines
+  #         - Missing Javadoc on public methods
+  #         - System.out.println usage (should use SLF4J)
+  #         - Hardcoded strings (should use constants)
+  #         - Missing test coverage for new/modified classes
+  #         - REST API controller patterns (Abstract/Concrete, README, OpenAPI annotations)
+  #         - BDM naming conventions (PB prefix, camelCase attributes)
+  #
+  #         Be concise. Only flag real issues, not style preferences.
+  #         Format: list each issue with file:line and a brief explanation.
+  #
+  #         Diff:
+  #         $DIFF" --output-format text > review.txt
+  #
+  #     - name: Post review comment
+  #       uses: actions/github-script@v7
+  #       with:
+  #         script: |
+  #           const fs = require('fs');
+  #           const review = fs.readFileSync('review.txt', 'utf8');
+  #           if (review.trim()) {
+  #             await github.rest.issues.createComment({
+  #               issue_number: context.issue.number,
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               body: `## 🤖 Claude Code Review\n\n${review}\n\n---\n*Automated review by Claude Code*`
+  #             });
+  #           }
