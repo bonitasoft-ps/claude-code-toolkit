@@ -1,5 +1,5 @@
 {
-  "_comment": "Claude Code settings template for Java libraries. Copy to .claude/settings.json",
+  "_comment": "Claude Code settings template for Java libraries. Copy to .claude/settings.json. Also copy agents/*.md to .claude/agents/ for code review, testing, and documentation agents.",
   "hooks": {
     "PreToolUse": [
       {

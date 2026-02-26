@@ -30,7 +30,7 @@ git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
 
 # Go to your project
 cd your-project
-mkdir -p .claude/commands .claude/hooks .claude/skills
+mkdir -p .claude/commands .claude/hooks .claude/skills .claude/agents
 
 # Copy settings template (choose one)
 cp /path/to/toolkit/templates/bonita-project.json .claude/settings.json  # For Bonita
@@ -48,6 +48,9 @@ chmod +x .claude/hooks/*.sh
 
 # Copy skills
 cp -r /path/to/toolkit/skills/* .claude/skills/
+
+# Copy agents
+cp /path/to/toolkit/agents/*.md .claude/agents/
 
 # Copy config files to project root
 cp /path/to/toolkit/configs/checkstyle.xml .
@@ -92,6 +95,8 @@ Resources are organized by **scope** — who they affect and where they're insta
 | Productivity commands (/compile, /run-tests) | ★★☆ Personal | Developer convenience |
 | Bonita-specific commands (/check-bdm-queries) | ★☆☆ Project | Only for Bonita projects |
 | BDM hooks (check-bdm-countfor.sh) | ★☆☆ Project | Only for BDM projects |
+| Agents (code-reviewer, auditor) | ★☆☆ Project | Delegated tasks use project skills |
+| MCP skills (jira, confluence) | ★★★ Enterprise | Same conventions for all teams |
 | Settings templates | ★☆☆ Project | Tailored per project type |
 
 ---
@@ -136,6 +141,40 @@ Resources are organized by **scope** — who they affect and where they're insta
 |-------|------------------------|-------|
 | `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | ★★★ |
 | `bonita-rest-api-expert` | User asks about REST API extensions, controllers | ★★★ |
+| `jira-workflow-expert` | User manages Jira issues, priorities, labels (requires Jira MCP) | ★★★ |
+| `confluence-docs-expert` | User creates/updates Confluence pages (requires Confluence MCP) | ★★★ |
+
+### Agents (delegate complete tasks)
+
+Agents are **isolated Claude instances** that work autonomously and return results. Install them in `.claude/agents/`:
+
+```bash
+cp /path/to/toolkit/agents/*.md your-project/.claude/agents/
+```
+
+| Agent | What it does | How to invoke |
+|-------|-------------|---------------|
+| `bonita-code-reviewer` | Reviews code against team standards | `delegate to bonita-code-reviewer: review this PR` |
+| `bonita-test-generator` | Creates unit + property + integration tests in batch | `delegate to bonita-test-generator: create tests for payment module` |
+| `bonita-auditor` | Full project audit with scoring | `delegate to bonita-auditor: audit this project` |
+| `bonita-documentation-generator` | Generates READMEs and documentation | `delegate to bonita-documentation-generator: document all controllers` |
+
+> **Agent vs Skill:** Skills enhance your current conversation (interactive). Agents run in isolation and return results (autonomous). Use agents for large delegated tasks like "review the entire PR" or "audit the project".
+
+### MCP + Skills (external tool integration)
+
+If your team uses Jira or Confluence MCPs, install the companion skills so Claude follows your conventions:
+
+```
+MCP Server (provides tools) + Skill (teaches conventions) = Effective AI assistant
+```
+
+| MCP Server | Companion Skill | What it adds |
+|-----------|----------------|-------------|
+| Jira MCP | `jira-workflow-expert` | Issue templates, priority rules, label conventions, workflow transitions |
+| Confluence MCP | `confluence-docs-expert` | Page templates (Tech Spec, ADR, Runbook), structure standards, writing style |
+
+Without the skill, Claude can create Jira issues but might use wrong priorities or skip required labels. With the skill, Claude follows your exact team conventions.
 
 ---
 

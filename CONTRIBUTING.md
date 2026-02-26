@@ -147,6 +147,62 @@ Every resource you add must have a **recommended scope**. Ask yourself:
 
 5. **Test auto-invocation** - Verify Claude activates the skill when asking about the relevant topic.
 
+#### Adding a New Agent
+
+Agents are isolated Claude instances for delegated tasks. They get their own context window and must explicitly list which skills to load.
+
+1. **Create the agent file:**
+   ```
+   agents/my-agent.md
+   ```
+
+2. **Use YAML frontmatter:**
+   ```yaml
+   ---
+   name: my-agent-name
+   description: "When to delegate to this agent. Be specific."
+   tools: Read, Grep, Glob, Bash, Edit, Write
+   model: sonnet
+   color: blue
+   skills: skill-one, skill-two
+   ---
+   ```
+
+3. **Structure the agent instructions:**
+   - `## Task` — What the agent must accomplish
+   - `## Procedure` — Step-by-step workflow
+   - `## Output Format` — How to structure results
+
+4. **Key facts about agents:**
+   - Agents do NOT see your skills automatically — you must list them in `skills:`
+   - Each agent gets its own context window (isolated from your conversation)
+   - Skills listed are loaded at startup (not on demand)
+   - Use `model: sonnet` for cost-effective agents, `model: opus` for complex ones
+
+5. **Test delegation** - Verify `delegate to my-agent: [task]` works correctly.
+
+#### Adding an MCP Skill
+
+MCP skills teach Claude how to use external MCP tools following team conventions. They pair an MCP server (which provides tools) with a skill (which teaches conventions).
+
+1. **Create the skill directory:**
+   ```
+   skills/my-mcp-skill/SKILL.md
+   ```
+
+2. **Include MCP tools in `allowed-tools`:**
+   ```yaml
+   ---
+   name: my-mcp-skill
+   description: "Use when the user asks about [topic] using [MCP tool]."
+   allowed-tools: Read, Grep, Glob, mcp__my-mcp-server__*
+   ---
+   ```
+
+3. **Document your team's conventions** for using that tool (templates, naming, labels, workflows).
+
+4. **Use progressive disclosure** — put detailed templates in `references/` subdirectory.
+
 #### Adding a Configuration File
 
 1. **Place in `configs/`:**
@@ -175,10 +231,14 @@ Every resource you add must have a **recommended scope**. Ask yourself:
 | Commands | `kebab-case.md` | `run-tests.md`, `check-bdm-queries.md` |
 | Hook scripts | `kebab-case.sh` | `check-code-format.sh`, `pre-commit-compile.sh` |
 | Skills | `kebab-case/SKILL.md` | `bonita-bdm-expert/SKILL.md` |
+| Agents | `kebab-case.md` | `code-reviewer.md`, `bonita-auditor.md` |
 | Config files | Standard names | `checkstyle.xml`, `pmd-ruleset.xml` |
 | Templates | `descriptive-name.json` | `bonita-project.json` |
 
-**Skill naming tip:** Use descriptive, prefixed names to avoid conflicts across scopes. Example: `bonita-bdm-expert` instead of just `bdm`.
+**Naming tips:**
+- **Skills:** Use descriptive, prefixed names to avoid conflicts across scopes. Example: `bonita-bdm-expert` instead of just `bdm`.
+- **Agents:** Use task-oriented names. Example: `code-reviewer`, `test-generator`, `bonita-auditor`.
+- **MCP Skills:** Name them `[tool]-workflow-expert` or `[tool]-docs-expert`. Example: `jira-workflow-expert`.
 
 ---
 
@@ -192,6 +252,8 @@ Before submitting a PR, verify:
 - [ ] Hook scripts have proper file filtering (don't run on irrelevant files)
 - [ ] Hook scripts are fast (< 2 seconds)
 - [ ] Hook scripts exit with correct codes (0 = allow, 2 = block)
+- [ ] Agent frontmatter includes all required fields (name, description, tools, skills)
+- [ ] MCP skills include MCP tool patterns in `allowed-tools` (e.g., `mcp__jira__*`)
 - [ ] Templates are updated if a new hook was added
 - [ ] install.sh is updated if applicable
 - [ ] No hardcoded project-specific paths (use `$CLAUDE_PROJECT_DIR`)
@@ -202,6 +264,7 @@ Before submitting a PR, verify:
 
 ```
 claude-code-toolkit/
+├── agents/                  # ★☆☆ Project — delegated task agents
 ├── commands/
 │   ├── java-maven/          # ★★☆ Personal — developer productivity
 │   ├── bonita/              # ★☆☆ Project — Bonita BPM specific
@@ -209,10 +272,12 @@ claude-code-toolkit/
 │   └── testing/             # ★★☆ Personal — testing tools
 ├── hooks/
 │   └── scripts/             # ★★★ Enterprise + ★☆☆ Project hooks
-├── skills/                  # ★★★ Enterprise — domain expertise
+├── skills/                  # ★★★ Enterprise — domain expertise + MCP skills
 ├── configs/                 # ★★★ Enterprise — standard rules
 ├── templates/               # ★☆☆ Project — settings + CLAUDE.md
+├── plugins/                 # Guide for publishing skills as plugins
 ├── install.sh               # Automated installer
+├── WHEN_TO_USE_WHAT.md      # Decision guide for resource types
 ├── README.md                # Full documentation
 ├── CONTRIBUTING.md          # This file
 └── ADOPTION_GUIDE.md        # Step-by-step adoption guide
@@ -235,14 +300,23 @@ claude-code-toolkit/
 - `check-null-safety.sh` - Detect potential NullPointerException patterns ★★★
 - `check-logging-level.sh` - Ensure appropriate log levels in production code ★★★
 
-### New Skills
-- `bonita-process-expert` - Expert guidance on Bonita process modeling ★★★
-- `bonita-connector-expert` - Expert guidance on Bonita connector development ★★★
+### New Skills / MCP Skills
 - `java-migration-expert` - Help migrate Java 11/8 code to Java 17+ idioms ★★★
-- `testing-expert` - Expert guidance on test strategy and coverage ★★★
+- `sonarqube-workflow-expert` - MCP skill for SonarQube conventions ★★★
+- `github-pr-expert` - MCP skill for PR review conventions ★★★
+- `slack-notification-expert` - MCP skill for Slack messaging conventions ★★★
+
+### New Agents
+- `security-auditor` - Audit for OWASP vulnerabilities, SQL injection, XSS ★☆☆
+- `dependency-updater` - Check and update outdated Maven dependencies ★☆☆
+- `migration-agent` - Migrate Java 11/8 code to Java 17+ idioms ★☆☆
 
 ### New Configs
 - `spotbugs-ruleset.xml` - SpotBugs configuration ★★★
 - `jacoco-rules.xml` - JaCoCo coverage rules ★★★
 - `pit-config.xml` - PIT mutation testing configuration ★★★
 - `sonarqube.properties` - SonarQube project configuration ★★★
+
+### Plugins to Publish
+- `testing-expert` - JUnit 5 + Mockito + AssertJ + jqwik patterns (universal)
+- `skill-creator` - Meta-skill for creating Claude Code skills (universal)
