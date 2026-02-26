@@ -37,9 +37,9 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API) | 2 |
-| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 14 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 8 |
+| **Skills** | Expert knowledge that Claude auto-activates (BDM, REST API, Documents) | 3 |
+| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 15 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 9 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings and CLAUDE.md starter | 3 |
 
@@ -195,6 +195,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 |-------|---------------------|-----------------|
 | `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | countFor rule, naming conventions (`PB` prefix), descriptions, indexes |
 | `bonita-rest-api-expert` | User asks about REST API extensions, controllers | Abstract/Concrete pattern, README.md, Javadoc, test requirements |
+| `bonita-document-expert` | User asks about PDF, HTML reports, Word/Excel export, documents | Corporate branding (colors, logo, header/footer), BrandingConfig pattern, OpenPDF/Thymeleaf/POI stack |
 
 #### Enterprise Hooks
 
@@ -204,6 +205,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `check-code-format.sh` | PostToolUse (Edit/Write) | Tabs, trailing whitespace, line length > 120, wildcard imports, blank lines |
 | `check-code-style.sh` | PostToolUse (Edit/Write) | System.out.println, empty catch, methods > 30 lines, missing @Override |
 | `check-hardcoded-strings.sh` | PostToolUse (Edit) | Magic strings in comparisons and switch cases |
+| `check-document-pattern.sh` | PostToolUse (Edit/Write) | Document generation without BrandingConfig, hardcoded colors/fonts, iText usage |
 
 #### Enterprise Configs
 
@@ -248,6 +250,7 @@ These resources **depend on the project type**. Install them in `.claude/` withi
 | `/check-existing-extensions` | Search extensions for similar functionality | `/check-existing-extensions cancel process` |
 | `/check-existing-processes` | Search processes for similar logic | `/check-existing-processes notification` |
 | `/generate-readme` | Generate README.md for a REST API controller | `/generate-readme CancelController` |
+| `/generate-document` | Scaffold corporate document service (PDF/HTML/DOCX/XLSX) | `/generate-document PDF InvoiceReport` |
 
 #### Project Hooks
 
@@ -514,7 +517,8 @@ claude-code-toolkit/
 │   │   ├── validate-bdm.md
 │   │   ├── check-existing-extensions.md
 │   │   ├── check-existing-processes.md
-│   │   └── generate-readme.md
+│   │   ├── generate-readme.md
+│   │   └── generate-document.md
 │   ├── quality/                       # ★★☆ Personal — quality tools
 │   │   ├── audit-compliance.md
 │   │   ├── check-code-quality.md
@@ -529,6 +533,7 @@ claude-code-toolkit/
 │       ├── check-code-format.sh       # ★★★ Enterprise — uniform formatting
 │       ├── check-code-style.sh        # ★★★ Enterprise — style standards
 │       ├── check-hardcoded-strings.sh # ★★★ Enterprise — constants policy
+│       ├── check-document-pattern.sh  # ★★★ Enterprise — corporate branding in documents
 │       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
 │       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
@@ -536,7 +541,9 @@ claude-code-toolkit/
 ├── skills/
 │   ├── bonita-bdm-expert/             # ★★★ Enterprise — company BDM knowledge
 │   │   └── SKILL.md
-│   └── bonita-rest-api-expert/        # ★★★ Enterprise — company REST API patterns
+│   ├── bonita-rest-api-expert/        # ★★★ Enterprise — company REST API patterns
+│   │   └── SKILL.md
+│   └── bonita-document-expert/       # ★★★ Enterprise — corporate document generation
 │       └── SKILL.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
