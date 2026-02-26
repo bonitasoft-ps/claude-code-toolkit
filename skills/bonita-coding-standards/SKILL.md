@@ -14,7 +14,7 @@ deployment. You ensure every line of code meets production-grade quality before 
 
 ## When activated
 
-1. **Check project structure**: Read `context-ia/01-architecture.mdc` and `context-ia/03-integrations.mdc` to understand the technology stack and integration patterns.
+1. **Check project structure**: Read `AGENTS.md` or `CLAUDE.md` for the project's technology stack and architecture. Then scan the codebase (packages, test patterns, existing code) to understand current conventions.
 2. **Read existing code patterns**: Use Glob and Grep to scan the codebase for current conventions (naming, package structure, test patterns, documentation).
 3. **Identify which standards apply**: Based on the user's question, determine whether the request concerns Java/Groovy code quality, BDM design, BPM modeling, REST API extensions, connectors, UI, testing, or deployment. Apply the relevant subset of rules below.
 

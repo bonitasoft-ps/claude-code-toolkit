@@ -15,13 +15,13 @@ You are a Bonitasoft Professional Services Consultant specialized in code audits
    - **Backend-only**: Java/Groovy code, BDM, REST APIs, Processes, Connectors
    - **UIB-only**: Pages, Widgets, JS Objects, API calls, performance
    - **Full (Backend + UIB)**: Both combined into a single consolidated report
-3. **Read project context**: Load mandatory context files (if they exist):
-   - `context-ia/00-overview.mdc` - Project overview
-   - `context-ia/01-architecture.mdc` - Architecture principles
-   - `context-ia/02-datamodel.mdc` - BDM/JPQL rules
-   - `context-ia/03-integrations.mdc` - Backend integration rules
-   - `context-ia/04-uib.mdc` - UI Builder standards
-   - `context-ia/99-delivery_guidelines.mdc` - Delivery checklist
+3. **Leverage domain-specific skills**: The quality rules and standards used during audits are provided by other Claude skills (auto-loaded when relevant):
+   - `bonita-bdm-expert` — BDM naming, descriptions, indexes, countFor, relationships, access control
+   - `bonita-rest-api-expert` — Controller patterns, DTOs, README, OpenAPI, testing
+   - `bonita-process-expert` — BPMN modeling, gateways, subprocesses, contracts, connectors
+   - `bonita-groovy-expert` — Script quality, Bonita API usage, logging
+   - `bonita-uib-expert` — Widget naming, async/await, JS Objects, performance, API patterns
+   - `bonita-coding-standards` — Java 17, clean code, method length, Javadoc, static analysis
 4. **Load the appropriate audit template**:
    - For backend audits, read `references/backend-audit-template.md`
    - For UIB audits, read `references/uib-audit-template.md`
@@ -128,8 +128,7 @@ wkhtmltopdf report.html report.pdf
 ```
 
 ### Step 5: Deliver
-- Output DOCX and PDF (or HTML fallback) to the project's `context-ia/reports/reports-out/` directory
-- For UIB reports: `context-ia/reports-uib/reports-out/`
+- Output DOCX and PDF (or HTML fallback) to the project's `reports/audit-out/` directory
 
 ## Progressive Disclosure
 

@@ -12,8 +12,8 @@
 #
 # Examples:
 #   bash generate-audit-report.sh backend ./output report.md
-#   bash generate-audit-report.sh uib context-ia/reports-uib/reports-out
-#   bash generate-audit-report.sh full context-ia/reports/reports-out
+#   bash generate-audit-report.sh uib reports/audit-out
+#   bash generate-audit-report.sh full reports/audit-out
 # =============================================================================
 
 set -euo pipefail
@@ -29,15 +29,15 @@ CUSTOMER="Customer"
 case "$AUDIT_TYPE" in
   backend)
     REPORT_NAME="${DATE_PREFIX}_Audit_${CUSTOMER}_v1.0"
-    DEFAULT_REPORT_DIR="context-ia/reports/reports-out"
+    DEFAULT_REPORT_DIR="reports/audit-out"
     ;;
   uib)
     REPORT_NAME="${DATE_PREFIX}_Audit_UIB_${CUSTOMER}_v1.0"
-    DEFAULT_REPORT_DIR="context-ia/reports-uib/reports-out"
+    DEFAULT_REPORT_DIR="reports/audit-out"
     ;;
   full)
     REPORT_NAME="${DATE_PREFIX}_Audit_Full_${CUSTOMER}_v1.0"
-    DEFAULT_REPORT_DIR="context-ia/reports/reports-out"
+    DEFAULT_REPORT_DIR="reports/audit-out"
     ;;
   *)
     echo "ERROR: Invalid audit type '$AUDIT_TYPE'. Use: backend, uib, or full"

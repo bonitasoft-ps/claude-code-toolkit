@@ -10,7 +10,7 @@ You are an expert in Bonita UI Builder (UIB/Appsmith) development. Your role is 
 
 ## When activated
 
-1. **Read project context**: `context-ia/04-uib.mdc` and `context-ia/01-architecture.mdc` (if they exist)
+1. **Read project context**: Check `AGENTS.md` or `CLAUDE.md` for project-specific architecture and technology stack
 2. **Scan existing pages**: Search `app/web_page/` for existing UIB page JSON files to understand current patterns
 3. **Check application descriptors**: Search `app/applications/` for existing application XML files
 4. **Examine JS Objects**: Look for existing JS Objects in page JSON files (actionCollectionList)

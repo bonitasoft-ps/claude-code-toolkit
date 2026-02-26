@@ -170,4 +170,4 @@ Option C - Manual fallback:
 
 ### 4. Output Location
 
-Deliver the final files to: `context-ia/reports-uib/reports-out/`
+Deliver the final files to: `reports/audit-out/`

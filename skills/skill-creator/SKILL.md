@@ -1,41 +1,130 @@
 ---
 name: skill-creator
-description: Use when the user asks to create a new Claude Code skill, write a SKILL.md file, design a skill, or wants guidance on skill structure, frontmatter, allowed-tools, or skill best practices. Ensures all skills follow the Anthropic standard and Bonitasoft methodology.
+description: Use when the user asks to create a new Claude Code skill, write a SKILL.md file, design a skill, determine skill scope (enterprise vs personal vs project), or wants guidance on skill structure, frontmatter, allowed-tools, progressive disclosure, multi-file structure, or skill best practices. Ensures all skills follow the Anthropic standard and Bonitasoft methodology.
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash
+user-invocable: true
 ---
 
 # Skill Creator — Meta-Skill for Generating Claude Code Skills
 
-You are an expert in creating Claude Code skills following the Anthropic agent skills standard and Bonitasoft team methodology. Your role is to ensure every skill is well-structured, correctly described, and effective.
+You are an expert in creating Claude Code skills following the Anthropic agent skills standard and Bonitasoft team methodology. Your role is to guide users through the complete skill creation process, including scope determination, structure design, and proper installation.
 
 ## When activated
 
-1. **Read existing skills**: Check `.claude/skills/` and the toolkit at `C:\JavaProjects\claude-code-toolkit\skills\`
+1. **Read existing skills**: Check `.claude/skills/` for project skills and the toolkit repository for enterprise skills
 2. **Understand the request**: What domain does the user want the skill to cover?
 3. **Check for conflicts**: Ensure the new skill name doesn't conflict with existing skills
+4. **Determine scope**: Help the user decide if the skill is Enterprise, Personal, or Project
 
-## Skill Creation Rules (MANDATORY)
+## Step 1: Scope Decision (MANDATORY)
+
+**Before writing ANY code**, help the user determine the correct scope. Ask these questions:
+
+### Scope Decision Tree
+
+```
+Q1: Will this skill be useful across MULTIPLE Bonita/Java projects?
+├── YES → Q2: Does it encode company-wide standards or domain expertise?
+│   ├── YES → ★★★ ENTERPRISE (e.g., bonita-bdm-expert, bonita-coding-standards)
+│   └── NO  → Q3: Is it about YOUR personal workflow/preferences?
+│       ├── YES → ★★☆ PERSONAL (e.g., my-code-review-style, my-git-workflow)
+│       └── NO  → ★☆☆ PROJECT (e.g., project-specific APIs, custom integrations)
+└── NO  → ★☆☆ PROJECT (only useful for this specific project)
+```
+
+### Scope Characteristics
+
+| Aspect | ★★★ Enterprise | ★★☆ Personal | ★☆☆ Project |
+|--------|----------------|--------------|-------------|
+| **Who benefits?** | Entire team/company | Just you | This project only |
+| **Examples** | BDM expert, REST API patterns, coding standards | Code review prefs, Git workflow, editor config | Project-specific APIs, custom BDM rules |
+| **Install location** | Toolkit repo → all projects | `~/.claude/skills/` | `.claude/skills/` in project repo |
+| **Maintained by** | Team lead / architect | Individual developer | Project team |
+| **Priority** | Highest (1st) | Medium (2nd) | Lower (3rd) |
+| **Can be overridden?** | No | By Enterprise | By Enterprise and Personal |
+
+### Installation Paths
+
+```
+★★★ Enterprise:
+  1. Create in toolkit: C:\JavaProjects\claude-code-toolkit\skills/{skill-name}/
+  2. Copy to each project: .claude/skills/{skill-name}/
+  3. Push toolkit to GitHub for team sharing
+
+★★☆ Personal:
+  1. Create in: ~/.claude/skills/{skill-name}/
+  2. Available in ALL your projects automatically
+  3. Not committed to any repo (private to you)
+
+★☆☆ Project:
+  1. Create in: .claude/skills/{skill-name}/
+  2. Committed to the project repo
+  3. Available to everyone working on this project
+```
+
+## Step 2: Skill Structure (MANDATORY)
 
 ### File Structure
-Every skill MUST follow this structure:
 ```
 skills/
 └── skill-name/              # Directory name = skill name (kebab-case)
-    ├── SKILL.md              # Main skill file (MANDATORY)
-    ├── references/           # Optional: detailed documentation Claude reads on demand
-    │   ├── architecture.md
+    ├── SKILL.md              # Main file (MANDATORY, max 500 lines)
+    ├── references/           # Detailed docs Claude reads on demand
+    │   ├── detailed-rules.md
     │   └── examples.md
-    ├── scripts/              # Optional: executable scripts (output-only, saves context)
+    ├── scripts/              # Executable scripts (output-only, saves tokens)
     │   └── validate.sh
-    └── assets/               # Optional: templates, images, data files
-        └── template.html
+    └── assets/               # Templates, images, data files
+        └── template.java
 ```
 
-### SKILL.md Template (MANDATORY)
+### When to Use Each Directory
+
+| Directory | Use when... | Token cost |
+|-----------|-------------|------------|
+| **SKILL.md** | Core rules that ALWAYS apply | Full content loaded every time |
+| **references/** | Detailed docs needed only sometimes | Loaded on demand (saves tokens) |
+| **scripts/** | Validation, scaffolding, automation | Only OUTPUT uses tokens (very efficient) |
+| **assets/** | Templates, logos, CSS, config files | Loaded only when referenced |
+
+### Progressive Disclosure Strategy
+
+**Rule of thumb**: If content is needed in >50% of interactions → put in SKILL.md. Otherwise → put in `references/`.
+
+```
+SKILL.md (always loaded, <500 lines):
+  - Frontmatter (name, description, allowed-tools)
+  - Expert role description
+  - "When activated" checklist
+  - Core mandatory rules (the 20% that covers 80% of cases)
+  - Progressive disclosure links to references
+  - Workflow for common requests
+
+references/ (loaded on demand):
+  - Detailed code examples
+  - Complete templates
+  - Edge cases and anti-patterns
+  - Historical context or rationale
+  - Long checklists or tables
+
+scripts/ (executed, only output counts):
+  - Validation scripts (check naming, structure)
+  - Scaffolding scripts (create directories, templates)
+  - Analysis scripts (count coverage, find patterns)
+
+assets/ (loaded when referenced):
+  - Java/Groovy templates
+  - CSS/HTML templates
+  - Logo/image files
+  - Configuration file templates
+```
+
+## Step 3: SKILL.md Template
+
 ```yaml
 ---
 name: my-skill-name
-description: Clear description answering TWO questions - (1) What does this skill do? (2) When should Claude use it? Include keywords that match how users actually phrase their requests. Max 1024 characters.
+description: Clear description answering (1) What does this skill do? and (2) When should Claude use it? Include keywords matching how users phrase requests. Max 1024 chars.
 allowed-tools: Read, Grep, Glob
 ---
 
@@ -53,15 +142,12 @@ Brief description of the expert role (1-2 sentences).
 
 ### Rule Category 1
 - Rule with explanation
-- Another rule
+- Another rule with code example
 
-### Rule Category 2
-- Rule with explanation
+## Progressive Disclosure
 
-## Patterns and Examples
-
-### Pattern Name
-```code example```
+- **For detailed examples**: Read `references/examples.md`
+- **For validation**: Run `scripts/validate.sh`
 
 ## When the user asks about [topic]
 
@@ -71,83 +157,82 @@ Brief description of the expert role (1-2 sentences).
 4. How to verify
 ```
 
-### Frontmatter Fields
+## Frontmatter Rules
 
 | Field | Required | Rules |
 |-------|----------|-------|
 | `name` | YES | Lowercase, numbers, hyphens only. Max 64 chars. MUST match directory name. |
-| `description` | YES | Max 1024 chars. Answer: What does it do? When should Claude use it? Include matching keywords. |
-| `allowed-tools` | No | Restrict Claude's tools when skill is active. Omit = no restrictions. |
+| `description` | YES | Max 1024 chars. Answer: What? When? Include keyword triggers. |
+| `allowed-tools` | No | Restrict tools when skill is active. Omit = no restrictions. |
 | `model` | No | Specify a Claude model. Omit = use default. |
-| `user-invocable` | No | Set to `true` if user can invoke with `/skill-name`. |
+| `user-invocable` | No | `true` if user can invoke with `/skill-name`. Default: auto-invoked. |
 
-### Naming Rules
-- Use **descriptive, prefixed names** to avoid conflicts across scopes
-- GOOD: `bonita-bdm-expert`, `frontend-pr-review`, `testing-expert`
-- BAD: `review`, `helper`, `expert` (too generic, will conflict)
+## Naming Rules
+
 - Convention: `[domain]-[purpose]` (e.g., `bonita-process-expert`, `java-migration-expert`)
+- GOOD: `bonita-bdm-expert`, `frontend-pr-review`, `testing-expert`
+- BAD: `review`, `helper`, `expert` (too generic, will conflict across scopes)
 
-### Description Best Practices
+## Description Best Practices
 
-A good description MUST answer:
-1. **What does this skill do?** — "Provides expert guidance on Bonita BDM design and JPQL queries"
-2. **When should Claude use it?** — "Use when the user asks about BDM queries, data model, JPQL, business objects, or database design"
+A good description MUST:
+1. **Answer "What?"** — "Provides expert guidance on Bonita BDM design and JPQL queries"
+2. **Answer "When?"** — "Use when the user asks about BDM queries, data model, JPQL..."
+3. **Include trigger keywords** that match how users phrase their requests
 
-Include **keywords that match how users phrase requests**:
 ```yaml
-# BAD - Too vague
+# BAD - Too vague, Claude won't know when to activate
 description: Helps with documents.
 
-# GOOD - Specific, keyword-rich
-description: Use when the user asks about generating documents (PDF, HTML reports, Word, Excel), corporate branding, document templates, or uses libraries like iText, OpenPDF, Apache POI, Flying Saucer, Thymeleaf for document output. Ensures all documents follow Bonitasoft corporate standards.
+# GOOD - Specific, keyword-rich, Claude knows exactly when to activate
+description: Use when the user asks about generating documents (PDF, HTML reports, Word, Excel), corporate branding, document templates, or uses libraries like iText, OpenPDF, Apache POI, Flying Saucer. Ensures documents follow Bonitasoft corporate standards.
 ```
 
-### Content Best Practices
+## Content Best Practices
 
-1. **Keep SKILL.md under 500 lines** — Claude loads the full content into context
-2. **Use progressive disclosure** — Link to `references/` files for detailed docs
-3. **Scripts over instructions** — For complex validation, put a script in `scripts/` and tell Claude to execute it (only output uses tokens, not the script content)
-4. **Structure with clear sections**: "When activated", "Mandatory Rules", "Patterns", "When the user asks about..."
-5. **Be explicit, not vague** — "Always use AssertJ for assertions" instead of "use good assertion libraries"
-6. **Include code examples** — Show the patterns you want Claude to follow
+1. **Keep SKILL.md under 500 lines** — full content loads into context every time
+2. **Use progressive disclosure** — detailed docs in `references/`
+3. **Scripts over instructions** — for complex validation, use `scripts/` (only output uses tokens)
+4. **Be explicit** — "Always use AssertJ" not "use good assertion libraries"
+5. **Include code examples** — show the exact patterns you want Claude to follow
+6. **Structure clearly**: "When activated", "Mandatory Rules", "Progressive Disclosure", "When the user asks..."
 
-### Scope Classification
-Every new skill MUST have a recommended scope:
-- **★★★ Enterprise**: Company-wide domain knowledge (BDM expert, REST API expert, document branding)
-- **★★☆ Personal**: Individual productivity (code review preferences, personal workflows)
-- **★☆☆ Project**: Project-specific (only relevant to certain project types)
+## allowed-tools Guidelines
 
-### allowed-tools Guidelines
-
-| Use case | Recommended allowed-tools |
-|----------|--------------------------|
+| Use case | Recommended |
+|----------|-------------|
 | Read-only analysis | `Read, Grep, Glob` |
-| Read + run scripts | `Read, Grep, Glob, Bash` |
-| Full editing | `Read, Grep, Glob, Edit, Write, Bash` |
+| Analysis + scripts | `Read, Grep, Glob, Bash` |
+| Full editing power | `Read, Grep, Glob, Edit, Write, Bash` |
 | No restriction | Omit the field entirely |
 
 ## Skill Creation Workflow
 
-When creating a new skill:
+1. **Determine scope** using the decision tree above
+2. **Check for existing skills** with overlapping functionality
+3. **Choose a descriptive name** (domain-purpose format)
+4. **Write the description** answering "What?" and "When?" with keywords
+5. **Design the structure** — what goes in SKILL.md vs references vs scripts vs assets
+6. **Write SKILL.md** following the template (max 500 lines)
+7. **Create reference files** for detailed content
+8. **Create scripts** for validation/scaffolding
+9. **Run the scaffold script** if available: `bash scripts/scaffold-skill.sh skill-name`
+10. **Install** to the correct location based on scope
+11. **Test the skill**:
+    - Restart Claude Code
+    - Verify with `what skills are available`
+    - Test with a matching user request
+    - Verify it does NOT trigger on unrelated requests
+12. **For Enterprise skills** — add to toolkit repo, update README.md, commit, push
 
-1. **Check for existing skills** with overlapping functionality
-2. **Choose a descriptive name** (domain-purpose format)
-3. **Write the description** answering "What?" and "When?"
-4. **Classify the scope** (Enterprise / Personal / Project)
-5. **Decide on allowed-tools** based on what the skill needs
-6. **Write SKILL.md** following the template above
-7. **Keep under 500 lines** — use references/ for details
-8. **Test the skill**:
-   - Restart Claude Code
-   - Verify it appears in `what skills are available`
-   - Test with a matching request
-   - Verify it does NOT trigger on unrelated requests
-9. **Add to the toolkit**:
-   - Copy to `C:\JavaProjects\claude-code-toolkit\skills\`
-   - Update README.md with the new skill in the correct scope section
-   - Commit and push
+## Progressive Disclosure
 
-## Priority System Reminder
+For detailed guidance, read these reference files:
+
+- **Scope examples and decision matrix**: Read `references/scope-guide.md`
+- **Scaffold new skill directory**: Run `scripts/scaffold-skill.sh <skill-name> [enterprise|personal|project]`
+
+## Priority System
 
 If two skills share the same name across scopes:
 ```
@@ -157,4 +242,4 @@ If two skills share the same name across scopes:
 4. Plugin      (lowest — namespaced)
 ```
 
-Use unique, descriptive names to avoid conflicts. Instead of `review`, use `bonita-pr-review`.
+Use unique, descriptive names to avoid conflicts.
