@@ -140,17 +140,7 @@ For actions that should only run on user interaction, omit `runBehaviour` or set
 
 ## Action ID Format
 
-```
-PageId_actionName
-```
-
-Examples:
-- `Page1_getDashboardKpis`
-- `Page1_userQuery`
-- `Page1_logoUrlQuery`
-- `Page1_updateCustomer`
-
-The `id` at the top level of the action object must follow this format.
+Format: `PageId_actionName` (e.g., `Page1_getDashboardKpis`). See `naming-conventions.md` for full naming rules.
 
 ## layoutOnLoadActions Batching
 

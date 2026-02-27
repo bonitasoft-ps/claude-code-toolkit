@@ -238,28 +238,9 @@ Smaller, descriptive label below the value:
 }
 ```
 
-## KPI Layout Pattern (5 Columns)
+## KPI Layout
 
-For a row of 5 KPI stat boxes:
-
-```
-Column 1: leftColumn=1,  rightColumn=13   (width: 12)
-Column 2: leftColumn=13, rightColumn=26   (width: 13)
-Column 3: leftColumn=26, rightColumn=39   (width: 13)
-Column 4: leftColumn=39, rightColumn=52   (width: 13)
-Column 5: leftColumn=52, rightColumn=63   (width: 11)
-```
-
-## KPI Layout Pattern (4 Columns)
-
-For a row of 4 KPI stat boxes:
-
-```
-Column 1: leftColumn=1,  rightColumn=16   (width: 15)
-Column 2: leftColumn=16, rightColumn=32   (width: 16)
-Column 3: leftColumn=32, rightColumn=48   (width: 16)
-Column 4: leftColumn=48, rightColumn=63   (width: 15)
-```
+> See `widget-patterns.md` → "Grid Layout Examples" for 4-column, 5-column, and other layout patterns.
 
 ## Multi-Series Chart
 
