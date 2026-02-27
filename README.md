@@ -41,10 +41,10 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 13 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 14 |
 | **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 4 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 17 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 13 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 14 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings, CLAUDE.md starter, GitHub Actions | 4 |
 
@@ -206,6 +206,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `bonita-uib-expert` | UI Builder, Appsmith pages, widgets | Naming, async/await, JS Objects, bonita-api-plugin |
 | `bonita-coding-standards` | Code quality, Java 17, clean code | SRP, method length, Javadoc, Checkstyle, PMD |
 | `bonita-audit-expert` | Code audits, quality reports | Backend + UIB audit templates, automated checks |
+| `safe-git-workflow` | Commit, push, PR, branch, git | Branch-based workflow: `claude/{type}/{desc}` + PR via `gh` |
 | `testing-expert` | Unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT |
 | `bonita-integration-testing-expert` | Integration tests, controller testing, doHandle | Full lifecycle tests, HTTP status paths, Bonita mocking |
 | `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
@@ -226,6 +227,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `check-skill-structure.sh` | PostToolUse (Write/Edit) | SKILL.md structure validation: frontmatter, naming, description, required sections |
 | `check-openapi-annotations.sh` | PostToolUse (Edit/Write) | Missing @Tag, @Operation, @ApiResponse on REST API controllers |
 | `pre-push-validate.sh` | PreToolUse (Bash) | **Blocks** `git push` if compilation fails or sensitive files staged |
+| `safe-git-workflow.sh` | PreToolUse (Bash) | **Blocks** `git commit`/`git push` on main/master/develop; enforces branch workflow |
 
 #### Enterprise Configs
 
@@ -660,6 +662,7 @@ claude-code-toolkit/
 │       ├── check-skill-structure.sh   # ★★★ Enterprise — SKILL.md methodology validation
 │       ├── check-openapi-annotations.sh # ★☆☆ Project — OpenAPI docs on controllers
 │       ├── pre-push-validate.sh       # ★★★ Enterprise — never push broken code
+│       ├── safe-git-workflow.sh       # ★★★ Enterprise — branch workflow enforcement
 │       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
 │       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
@@ -704,6 +707,9 @@ claude-code-toolkit/
 │   │   ├── SKILL.md
 │   │   ├── references/               # bonita-test-harness, controller-test-patterns, dto-validation
 │   │   └── assets/IntegrationTestTemplate.java
+│   ├── safe-git-workflow/              # ★★★ Enterprise — branch-based git workflow
+│   │   ├── SKILL.md
+│   │   └── references/branch-examples.md
 │   ├── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
 │   │   └── SKILL.md
 │   ├── jira-workflow-expert/          # ★★★ Enterprise — MCP skill for Jira conventions
