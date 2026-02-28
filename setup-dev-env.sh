@@ -207,6 +207,7 @@ if [ "$INSTALL_PROJECT" = true ]; then
         "check-hardcoded-strings.sh"
         "check-skill-structure.sh"
         "pre-commit-compile.sh"
+        "safe-git-workflow.sh"
     )
     hook_count=0
     for hook in "${common_hooks[@]}"; do
