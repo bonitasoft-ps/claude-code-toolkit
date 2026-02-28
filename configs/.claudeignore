@@ -1,0 +1,87 @@
+# =============================================================================
+# .claudeignore — Files that Claude Code should NOT read or index
+# =============================================================================
+# Copy this file to the root of your project.
+# Reduces context window usage, speeds up responses, avoids processing heavy files.
+# Syntax is identical to .gitignore.
+
+# --- Dependencies ---
+node_modules/
+.npm/
+.pnpm-store/
+bower_components/
+
+# --- Build outputs ---
+dist/
+build/
+target/
+out/
+*.jar
+*.war
+*.class
+
+# --- Git internals ---
+.git/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Binary and heavy media files ---
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.bmp
+*.tiff
+*.webp
+*.mp4
+*.mp3
+*.avi
+*.mov
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.pdf
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Vector databases ---
+vectordb/
+*.lance
+
+# --- Cloned documentation (bonita-docs-toolkit) ---
+raw/
+
+# --- Cache ---
+.cache/
+.huggingface/
+__pycache__/
+*.pyc
+
+# --- Secrets ---
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# --- Temporary ---
+tmp/
+temp/
+*.tmp
