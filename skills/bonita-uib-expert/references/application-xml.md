@@ -129,12 +129,7 @@ app/
       KpiProcessAnalysis.json
 ```
 
-### Naming Rules
-
-- Application XML: `app{ApplicationName}.xml` (e.g., `appKpiDashboard.xml`)
-- Page folder: PascalCase matching the page name (e.g., `KpiDashboard/`)
-- Page JSON: Must match folder name (e.g., `KpiDashboard/KpiDashboard.json`)
-- customPage reference: `custompage_` + folder name (e.g., `custompage_KpiDashboard`)
+> See `naming-conventions.md` for complete naming rules (application XML, page folders, page JSON, customPage references).
 
 ## Multiple Applications
 

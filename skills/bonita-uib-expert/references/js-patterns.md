@@ -78,32 +78,7 @@ export default {
 }
 ```
 
-### Anti-Pattern: Calling .run() in JSInit When API Already in layoutOnLoadActions
-
-```javascript
-// WRONG: Redundant .run() when API is already in layoutOnLoadActions batch 1
-export default {
-  async init() {
-    await userQuery.run();  // Redundant! Already loaded in batch 1
-    this.user = userQuery.data;
-  }
-}
-```
-
-### Correct Pattern: Read Already-Loaded Data
-
-```javascript
-// CORRECT: Just read from the already-loaded API data
-export default {
-  async init() {
-    // APIs already loaded in batch 1 - just read their data
-    if (userQuery.data?.user_name) {
-      this.user = userQuery.data;
-      await storeValue('user', this.user);
-    }
-  }
-}
-```
+> **JSInit pattern:** See `header-pattern.md` for the full JSInit implementation (read already-loaded data, never call `.run()` on APIs already in `layoutOnLoadActions`).
 
 ### Parallel API Calls
 
@@ -162,89 +137,9 @@ const user = appsmith.store.user;
 const lang = appsmith.store.language;
 ```
 
-## JSi18n Pattern (Internationalization)
+## Internationalization
 
-### Full Implementation
-
-```javascript
-export default {
-  translations: {
-    en: {
-      welcome: 'Welcome {{name}}',
-      dashboard: {
-        title: 'KPI Dashboard',
-        totalProcesses: 'Total Processes',
-        totalCases: 'Total Cases'
-      }
-    },
-    es: {
-      welcome: 'Bienvenido {{name}}',
-      dashboard: {
-        title: 'Panel de KPIs',
-        totalProcesses: 'Total Procesos',
-        totalCases: 'Total Casos'
-      }
-    },
-    fr: {
-      welcome: 'Bienvenue {{name}}',
-      dashboard: {
-        title: 'Tableau de Bord KPI',
-        totalProcesses: 'Total Processus',
-        totalCases: 'Total Cas'
-      }
-    }
-  },
-
-  currentLang: 'en',
-
-  init() {
-    const browserLang = navigator.language?.substring(0, 2) || 'en';
-    this.currentLang = this.translations[browserLang] ? browserLang : 'en';
-    storeValue('language', this.currentLang);
-  },
-
-  t(key, params = {}) {
-    const keys = key.split('.');
-    let value = this.translations[this.currentLang];
-    for (const k of keys) {
-      value = value?.[k];
-    }
-    if (!value) return key;
-    return value.replace(/\{\{(\w+)\}\}/g, (match, param) => params[param] || match);
-  },
-
-  setLang(lang) {
-    if (this.translations[lang]) {
-      this.currentLang = lang;
-      storeValue('language', lang);
-    }
-  }
-}
-```
-
-### Usage in Widgets
-
-```javascript
-// Welcome message with user name
-"{{JSi18n.t('welcome', {name: appsmith.user.name})}}"
-
-// Nested keys
-"{{JSi18n.t('dashboard.totalProcesses')}}"
-
-// Dynamic title
-"{{JSi18n.t('dashboard.title')}}"
-```
-
-### Adding to layoutOnLoadActions
-
-If JSi18n needs to initialize on page load, add it to the batch AFTER APIs:
-
-```json
-"layoutOnLoadActions": [
-  [{"id": "Page1_userQuery"}],
-  [{"id": "Page1_JSi18n.init", "pluginType": "JS", "collectionId": "Page1_JSi18n"}]
-]
-```
+> See `i18n-patterns.md` for the complete JSI18n implementation (translations, locale detection, widget usage, key conventions).
 
 ## KpiUtils Formatting Utilities
 
