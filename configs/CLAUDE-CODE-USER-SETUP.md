@@ -94,24 +94,34 @@ Both are loaded. Project-level instructions can override or extend user-level on
 
 ### What it does
 
-Tells Claude Code to **skip reading** certain files and directories, similar to `.gitignore`.
+Tells Claude Code to **skip certain files during automatic codebase scanning**, similar to `.gitignore`.
+
+**Important distinction:** `.claudeignore` only affects automatic scanning. Claude **can still read any file** if you explicitly ask it to (e.g., "read this PDF", "look at this screenshot"). Claude is multimodal and reads PDFs, images, etc. on demand.
 
 ### Why we created it
 
-Claude Code has a limited context window. If it reads `node_modules/` (500MB+ of dependencies) or `vectordb/` (128MB of binary data), it wastes context on irrelevant content and slows down responses. `.claudeignore` ensures Claude focuses on the code that matters.
+Claude Code has a limited context window. If it auto-scans `node_modules/` (500MB+) or `vectordb/` (128MB binary data), it wastes context on irrelevant content and slows down responses. `.claudeignore` ensures auto-scanning focuses on code that matters.
 
 ### What we exclude and why
 
-| Pattern | Why |
-|---------|-----|
-| `node_modules/`, `target/`, `dist/` | Dependencies and build outputs — not your code |
-| `.git/` | Git internals — thousands of objects, never useful |
-| `*.png`, `*.jpg`, `*.pdf` | Binary files — Claude can't read them productively |
-| `vectordb/`, `*.lance` | LanceDB binary data (128MB) |
-| `raw/` | Cloned documentation branches (1.4GB in bonita-docs-toolkit) |
-| `.env`, `*.pem`, `*.key` | Secrets — should never be read or displayed |
-| `*.log` | Log files — usually too large and noisy |
-| `.cache/`, `.huggingface/` | Cache directories — not relevant to development |
+| Pattern | Why | Can Claude still read it on demand? |
+|---------|-----|-------------------------------------|
+| `node_modules/`, `target/`, `dist/` | Dependencies and build outputs | Yes, but rarely useful |
+| `.git/` | Git internals — thousands of objects | Yes, but use git commands instead |
+| `vectordb/`, `*.lance` | LanceDB binary data (128MB), used by code not Claude | No (binary format) |
+| `raw/` | Cloned doc branches (1.4GB) | Yes, but use search tools instead |
+| `.env`, `*.pem`, `*.key` | Secrets | **Should never be read** |
+| `*.log` | Log files — usually too large | Yes, if you ask explicitly |
+| `*.mp4`, `*.zip`, `*.tar.gz` | Large binary files | No (not text/image) |
+| `.cache/`, `.huggingface/` | Cache directories | Yes, but rarely useful |
+
+### What we do NOT exclude
+
+| Pattern | Why it stays readable |
+|---------|----------------------|
+| `*.pdf` | Proposals, audit reports, Bonita documentation — Claude reads PDFs natively |
+| `*.png`, `*.jpg`, `*.svg` | Screenshots, UI mockups, diagrams — Claude is multimodal |
+| `*.jar`, `*.war` | May need to inspect Bonita connectors or deployments |
 
 ### Where to put it
 
@@ -121,10 +131,7 @@ Copy the template to the **root of each project**:
 cp configs/.claudeignore /path/to/your/project/.claudeignore
 ```
 
-Each project may need customization. For example:
-- Java projects: Add `*.jar`, `target/`
-- Node projects: Add `node_modules/`, `dist/`
-- bonita-docs-toolkit: Add `raw/`, `vectordb/`
+Each project may need customization (add or remove patterns based on your needs).
 
 ---
 

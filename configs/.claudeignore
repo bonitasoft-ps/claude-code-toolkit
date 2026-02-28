@@ -1,66 +1,61 @@
 # =============================================================================
-# .claudeignore — Files that Claude Code should NOT read or index
+# .claudeignore — Files Claude Code skips when auto-scanning the project
 # =============================================================================
-# Copy this file to the root of your project.
-# Reduces context window usage, speeds up responses, avoids processing heavy files.
-# Syntax is identical to .gitignore.
+#
+# IMPORTANT: This only affects automatic codebase scanning/indexing.
+# Claude CAN still read any file if you explicitly ask it to (e.g., "read this PDF").
+# Claude is multimodal and can read PDFs, images, etc. on demand.
+#
+# Purpose: Reduce context window usage and speed up responses by skipping
+# files that are rarely useful during development conversations.
+#
+# Copy this file to the root of your project and customize as needed.
 
-# --- Dependencies ---
+# --- Dependencies (never useful to scan) ---
 node_modules/
 .npm/
 .pnpm-store/
 bower_components/
 
-# --- Build outputs ---
+# --- Build outputs (generated, not source) ---
 dist/
 build/
 target/
 out/
-*.jar
-*.war
 *.class
 
 # --- Git internals ---
 .git/
 
-# --- IDE ---
+# --- IDE config ---
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# --- Binary and heavy media files ---
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.ico
-*.svg
-*.bmp
-*.tiff
-*.webp
+# --- Video/audio (too large, not useful in scans) ---
 *.mp4
 *.mp3
 *.avi
 *.mov
+
+# --- Archives (binary, scan can't read them) ---
 *.zip
 *.tar.gz
 *.rar
 *.7z
-*.pdf
 
-# --- Logs ---
+# --- Logs (usually too large and noisy) ---
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 
-# --- Vector databases ---
+# --- Vector database binaries (used by LanceDB programmatically, not by Claude) ---
 vectordb/
 *.lance
 
-# --- Cloned documentation (bonita-docs-toolkit) ---
+# --- Cloned documentation branches (bonita-docs-toolkit, 1.4GB) ---
 raw/
 
 # --- Cache ---
@@ -69,14 +64,14 @@ raw/
 __pycache__/
 *.pyc
 
-# --- Secrets ---
+# --- Secrets (should never appear in context) ---
 .env
 .env.*
 *.pem
 *.key
 credentials.json
 
-# --- OS ---
+# --- OS junk ---
 Thumbs.db
 .DS_Store
 desktop.ini
@@ -85,3 +80,12 @@ desktop.ini
 tmp/
 temp/
 *.tmp
+
+# =============================================================================
+# NOT excluded (Claude can scan these):
+# =============================================================================
+# *.pdf     — Proposals, audit reports, documentation (Claude reads PDFs)
+# *.png/jpg — Screenshots, UI mockups (Claude is multimodal)
+# *.svg     — Diagrams, icons (useful for understanding UI)
+# *.jar     — Might need to inspect Bonita connector JARs
+# *.war     — Might need to inspect Bonita deployments
