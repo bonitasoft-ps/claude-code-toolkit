@@ -43,7 +43,7 @@ if ! echo "$CONTENT" | grep -q '^name:'; then
 else
     # Check name format (lowercase, numbers, hyphens only)
     SKILL_NAME=$(echo "$CONTENT" | grep '^name:' | head -1 | sed 's/name: *//')
-    if echo "$SKILL_NAME" | grep -qP '[^a-z0-9\-]'; then
+    if echo "$SKILL_NAME" | grep -qE '[^a-z0-9-]'; then
         WARNINGS="${WARNINGS}⚠ Skill name '${SKILL_NAME}' should only contain lowercase letters, numbers, and hyphens\n"
     fi
     # Check name length
@@ -52,7 +52,7 @@ else
         WARNINGS="${WARNINGS}⚠ Skill name exceeds 64 characters (current: ${NAME_LEN})\n"
     fi
     # Check for generic names
-    if echo "$SKILL_NAME" | grep -qP '^(review|helper|expert|utils|tools|misc)$'; then
+    if echo "$SKILL_NAME" | grep -qE '^(review|helper|expert|utils|tools|misc)$'; then
         WARNINGS="${WARNINGS}⚠ Skill name '${SKILL_NAME}' is too generic. Use [domain]-[purpose] format (e.g., bonita-review, java-helper)\n"
     fi
 fi

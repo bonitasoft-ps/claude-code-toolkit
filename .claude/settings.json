@@ -1,0 +1,33 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/scripts/safe-git-workflow.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/scripts/check-skill-structure.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/scripts/check-docs-consistency.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}

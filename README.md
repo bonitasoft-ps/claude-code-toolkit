@@ -10,6 +10,15 @@ git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
 
 ---
 
+## Prerequisites
+
+- **Git Bash** (Windows) or **bash** (macOS/Linux) — required for hooks
+- **Python 3.x** — required for analysis hooks
+- **Java 17+** — required for compile hooks
+- **Maven 3.9+** — required for build hooks
+
+---
+
 ## Table of Contents
 
 - [What is this?](#what-is-this)
@@ -41,10 +50,10 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 13 |
-| **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 4 |
-| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 17 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile) | 13 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 18 |
+| **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 5 |
+| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 19 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 14 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings, CLAUDE.md starter, GitHub Actions | 4 |
 
@@ -206,11 +215,16 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `bonita-uib-expert` | UI Builder, Appsmith pages, widgets | Naming, async/await, JS Objects, bonita-api-plugin |
 | `bonita-coding-standards` | Code quality, Java 17, clean code | SRP, method length, Javadoc, Checkstyle, PMD |
 | `bonita-audit-expert` | Code audits, quality reports | Backend + UIB audit templates, automated checks |
+| `safe-git-workflow` | Commit, push, PR, branch, git | Branch-based workflow: `claude/{type}/{desc}` + PR via `gh` |
 | `testing-expert` | Unit tests, coverage, mutation testing | JUnit 5 + Mockito + AssertJ + jqwik + PIT |
 | `bonita-integration-testing-expert` | Integration tests, controller testing, doHandle | Full lifecycle tests, HTTP status paths, Bonita mocking |
 | `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
 | `jira-workflow-expert` | Jira issues, sprints, transitions | Issue types, priorities, labels, workflows (MCP skill) |
 | `confluence-docs-expert` | Confluence pages, docs, specs | Page templates, structure, labels, writing style (MCP skill) |
+| `bonita-connector-expert` | *Connector*.java, *Filter*.java, *Handler*.java files | AbstractConnector lifecycle, actor filters, event handlers, REST API extensions |
+| `bonita-performance-expert` | "slow", "performance", "optimize", "timeout", "memory" | BDM query optimization, engine tuning, UIB performance, database tips |
+| `bonita-debugging-expert` | "error", "exception", "bug", "debug", "stuck", stack traces | 4-step debug workflow, log patterns, exception diagnosis, resolution strategies |
+| `bonita-estimation-expert` | "estimate", "how long", "effort", "budget", "proposal" | Effort tables, risk multipliers, phase breakdown, PS service templates |
 
 > **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
 
@@ -226,6 +240,7 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `check-skill-structure.sh` | PostToolUse (Write/Edit) | SKILL.md structure validation: frontmatter, naming, description, required sections |
 | `check-openapi-annotations.sh` | PostToolUse (Edit/Write) | Missing @Tag, @Operation, @ApiResponse on REST API controllers |
 | `pre-push-validate.sh` | PreToolUse (Bash) | **Blocks** `git push` if compilation fails or sensitive files staged |
+| `safe-git-workflow.sh` | PreToolUse (Bash) | **Blocks** `git commit`/`git push` on main/master/develop; enforces branch workflow |
 
 #### Enterprise Configs
 
@@ -511,6 +526,7 @@ Agents are **isolated Claude instances** that receive a delegated task, work ind
 | `bonita-test-generator` | testing-expert, integration-testing-expert | Batch test creation for modules |
 | `bonita-auditor` | audit-expert, coding-standards, bdm-expert, rest-api-expert, testing-expert | Full project audits with scoring |
 | `bonita-documentation-generator` | rest-api-expert, document-expert | Batch README and Javadoc generation |
+| `bonita-ps-ecosystem-auditor` | bonita-coding-standards | Cross-repo health check: counts, drift, tests, git status for all PS repos |
 
 ### Usage
 
@@ -627,7 +643,8 @@ claude-code-toolkit/
 │   ├── code-reviewer.md              # Code review with skills
 │   ├── test-generator.md             # Batch test creation with skills
 │   ├── bonita-auditor.md             # Full project audit with skills
-│   └── documentation-generator.md    # Batch documentation with skills
+│   ├── documentation-generator.md    # Batch documentation with skills
+│   └── bonita-ps-ecosystem-auditor.md # Cross-repo PS ecosystem health check
 ├── commands/
 │   ├── java-maven/                    # ★★☆ Personal — developer productivity
 │   │   ├── compile.md
@@ -660,6 +677,7 @@ claude-code-toolkit/
 │       ├── check-skill-structure.sh   # ★★★ Enterprise — SKILL.md methodology validation
 │       ├── check-openapi-annotations.sh # ★☆☆ Project — OpenAPI docs on controllers
 │       ├── pre-push-validate.sh       # ★★★ Enterprise — never push broken code
+│       ├── safe-git-workflow.sh       # ★★★ Enterprise — branch workflow enforcement
 │       ├── check-bdm-countfor.sh      # ★☆☆ Project — Bonita BDM only
 │       ├── check-controller-readme.sh # ★☆☆ Project — Bonita REST API only
 │       ├── check-method-usages.sh     # ★☆☆ Project — multi-module only
@@ -704,6 +722,9 @@ claude-code-toolkit/
 │   │   ├── SKILL.md
 │   │   ├── references/               # bonita-test-harness, controller-test-patterns, dto-validation
 │   │   └── assets/IntegrationTestTemplate.java
+│   ├── safe-git-workflow/              # ★★★ Enterprise — branch-based git workflow
+│   │   ├── SKILL.md
+│   │   └── references/branch-examples.md
 │   ├── skill-creator/                 # ★★★ Enterprise — meta-skill for creating skills
 │   │   └── SKILL.md
 │   ├── jira-workflow-expert/          # ★★★ Enterprise — MCP skill for Jira conventions
@@ -712,6 +733,14 @@ claude-code-toolkit/
 │   └── confluence-docs-expert/        # ★★★ Enterprise — MCP skill for Confluence conventions
 │       ├── SKILL.md
 │       └── references/page-templates.md
+│   ├── bonita-connector-expert/       # ★★★ Enterprise — connectors, filters, handlers, REST API ext.
+│   │   └── SKILL.md
+│   ├── bonita-performance-expert/     # ★★★ Enterprise — diagnosis, BDM/engine/UIB optimization
+│   │   └── SKILL.md
+│   ├── bonita-debugging-expert/       # ★★★ Enterprise — structured debug workflow, log patterns
+│   │   └── SKILL.md
+│   └── bonita-estimation-expert/      # ★★★ Enterprise — PS effort estimation framework
+│       └── SKILL.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
 │   ├── pmd-ruleset.xml                # ★★★ Enterprise — static analysis
@@ -727,7 +756,8 @@ claude-code-toolkit/
 │       └── claude-pr-review.yml       # ★★★ Enterprise — CI/CD quality gates + Claude review
 ├── plugins/
 │   └── README.md                      # Guide for publishing toolkit skills as plugins
-├── install.sh                         # Automated installer script
+├── install.sh                         # Interactive installer (prompts for scope/type)
+├── setup-dev-env.sh                   # Non-interactive installer (--personal, --project, --list)
 ├── WHEN_TO_USE_WHAT.md                # Decision guide: when to use each resource type
 ├── README.md                          # This file
 ├── CONTRIBUTING.md                    # How to contribute to the toolkit
@@ -758,8 +788,47 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 
 ## Projects Using This Toolkit
 
-- [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) — Bonita BPM Process Builder
-- [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) — Shared Java library
+### PS Toolkit Repos (bonitasoft-ps)
+
+| Repository | Skills | Hooks | Commands |
+|-----------|--------|-------|----------|
+| [bonita-upgrade-toolkit](https://github.com/bonitasoft-ps/bonita-upgrade-toolkit) | 10 | 2 | 6 |
+| [bonita-audit-toolkit](https://github.com/bonitasoft-ps/bonita-audit-toolkit) | 12 | 3 | 7 |
+| [bonita-connectors-generator-toolkit](https://github.com/bonitasoft-ps/bonita-connectors-generator-toolkit) | 5 | 4 | 9 |
+| [bonita-ps-mcp](https://github.com/bonitasoft-ps/bonita-ps-mcp) | 1 | 1 | 4 |
+| [template-test-toolkit](https://github.com/bonitasoft-ps/template-test-toolkit) | 1 | 3 | 0 |
+
+### Presales Projects (bonitasoft-presales)
+
+| Repository | Description |
+|-----------|-------------|
+| [ps-process-builder](https://github.com/bonitasoft-presales/ps-process-builder) | Bonita BPM Process Builder |
+| [process-builder-extension-library](https://github.com/bonitasoft-presales/process-builder-extension-library) | Shared Java library |
+
+### Quick Setup
+
+For PS team members, the fastest way to get everything configured:
+
+```bash
+# Clone bonita-ps-mcp and run the all-in-one setup
+git clone git@github.com:bonitasoft-ps/bonita-ps-mcp.git
+bash bonita-ps-mcp/scripts/setup-ps-tools.sh ~/ps-tools
+```
+
+This clones all 6 repos, installs MCP dependencies, configures personal commands, and generates the Claude Desktop config.
+
+Alternatively, use the non-interactive installer directly:
+
+```bash
+# Install personal commands only
+bash setup-dev-env.sh --personal
+
+# Configure a specific project
+bash setup-dev-env.sh --project /path/to/project --project-type bonita
+
+# See what's available
+bash setup-dev-env.sh --list
+```
 
 ---
 

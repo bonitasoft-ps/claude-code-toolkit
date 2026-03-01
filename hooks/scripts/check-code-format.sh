@@ -30,14 +30,14 @@ fi
 WARNINGS=""
 
 # Check for tabs (should use spaces)
-if grep -Pn '\t' "$FILE_PATH" > /dev/null 2>&1; then
-    TAB_LINES=$(grep -Pn '\t' "$FILE_PATH" | head -5 | cut -d: -f1 | tr '\n' ', ' | sed 's/,$//')
+if grep -n $'\t' "$FILE_PATH" > /dev/null 2>&1; then
+    TAB_LINES=$(grep -n $'\t' "$FILE_PATH" | head -5 | cut -d: -f1 | tr '\n' ', ' | sed 's/,$//')
     WARNINGS="${WARNINGS}⚠ TABS detected (use spaces): lines ${TAB_LINES}\n"
 fi
 
 # Check for trailing whitespace
-if grep -Pn '\s+$' "$FILE_PATH" > /dev/null 2>&1; then
-    TRAIL_LINES=$(grep -Pn '\s+$' "$FILE_PATH" | head -5 | cut -d: -f1 | tr '\n' ', ' | sed 's/,$//')
+if grep -En '[[:space:]]+$' "$FILE_PATH" > /dev/null 2>&1; then
+    TRAIL_LINES=$(grep -En '[[:space:]]+$' "$FILE_PATH" | head -5 | cut -d: -f1 | tr '\n' ', ' | sed 's/,$//')
     WARNINGS="${WARNINGS}⚠ Trailing whitespace: lines ${TRAIL_LINES}\n"
 fi
 

@@ -5,10 +5,12 @@
 #          and warn about other files that may need updating
 # Exit 0 = always allow (informational only)
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
 
 # Extract the edited file path
-FILE_PATH=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null)
+FILE_PATH=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null)
 
 # Only check Java and Groovy source files
 if ! echo "$FILE_PATH" | grep -qE "\.(java|groovy|kt)$"; then
@@ -21,8 +23,8 @@ if ! echo "$FILE_PATH" | grep -qiE "extensions/"; then
 fi
 
 # Extract the old and new strings to detect signature changes
-OLD_STRING=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('old_string',''))" 2>/dev/null)
-NEW_STRING=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('new_string',''))" 2>/dev/null)
+OLD_STRING=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('old_string',''))" 2>/dev/null)
+NEW_STRING=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('new_string',''))" 2>/dev/null)
 
 # Detect if this looks like a method signature change
 # Check for patterns like: methodName( with different parameters
@@ -32,8 +34,8 @@ OLD_HAS_METHOD=$(echo "$OLD_STRING" | grep -cE "$METHOD_PATTERN" 2>/dev/null)
 NEW_HAS_METHOD=$(echo "$NEW_STRING" | grep -cE "$METHOD_PATTERN" 2>/dev/null)
 
 if [ "$OLD_HAS_METHOD" -gt 0 ] && [ "$NEW_HAS_METHOD" -gt 0 ]; then
-    # Extract method name from old string
-    METHOD_NAME=$(echo "$OLD_STRING" | grep -oP '\w+(?=\s*\()' | head -1)
+    # Extract method name from old string (word immediately before an opening paren)
+    METHOD_NAME=$(echo "$OLD_STRING" | grep -oE '[A-Za-z_][A-Za-z0-9_]*[[:space:]]*\(' | head -1 | sed 's/[[:space:]]*(//')
 
     if [ -n "$METHOD_NAME" ] && [ "$METHOD_NAME" != "if" ] && [ "$METHOD_NAME" != "for" ] && [ "$METHOD_NAME" != "while" ] && [ "$METHOD_NAME" != "switch" ] && [ "$METHOD_NAME" != "catch" ]; then
         PROJECT_DIR="$CLAUDE_PROJECT_DIR"
