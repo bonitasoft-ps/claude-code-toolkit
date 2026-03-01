@@ -4,8 +4,10 @@
 # Purpose: Run mvn clean compile before any git commit to ensure project stability
 # Exit 0 = allow, Exit 2 = block
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+COMMAND=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
 # Only intercept git commit commands
 if ! echo "$COMMAND" | grep -qE "git\s+commit"; then

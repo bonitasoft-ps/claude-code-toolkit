@@ -35,7 +35,7 @@ if grep -n 'System\.\(out\|err\)\.print' "$FILE_PATH" > /dev/null 2>&1; then
 fi
 
 # Check for empty catch blocks
-if grep -Pzn 'catch\s*\([^)]*\)\s*\{\s*\}' "$FILE_PATH" > /dev/null 2>&1; then
+if awk '/catch[[:space:]]*\(/{found=1; line=NR} found && /\{[[:space:]]*\}/ && NR<=line+2{print "found"; found=0}' "$FILE_PATH" 2>/dev/null | grep -q "found"; then
     WARNINGS="${WARNINGS}⚠ Empty catch block detected - add proper error handling or logging\n"
 fi
 

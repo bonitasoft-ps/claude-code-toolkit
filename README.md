@@ -10,6 +10,15 @@ git clone https://github.com/bonitasoft-ps/claude-code-toolkit.git
 
 ---
 
+## Prerequisites
+
+- **Git Bash** (Windows) or **bash** (macOS/Linux) — required for hooks
+- **Python 3.x** — required for analysis hooks
+- **Java 17+** — required for compile hooks
+- **Maven 3.9+** — required for build hooks
+
+---
+
 ## Table of Contents
 
 - [What is this?](#what-is-this)
@@ -41,9 +50,9 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 14 |
-| **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 4 |
-| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 17 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 18 |
+| **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 5 |
+| **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 19 |
 | **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 14 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings, CLAUDE.md starter, GitHub Actions | 4 |
@@ -212,6 +221,10 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `skill-creator` | Creating new skills | Anthropic methodology, progressive disclosure |
 | `jira-workflow-expert` | Jira issues, sprints, transitions | Issue types, priorities, labels, workflows (MCP skill) |
 | `confluence-docs-expert` | Confluence pages, docs, specs | Page templates, structure, labels, writing style (MCP skill) |
+| `bonita-connector-expert` | *Connector*.java, *Filter*.java, *Handler*.java files | AbstractConnector lifecycle, actor filters, event handlers, REST API extensions |
+| `bonita-performance-expert` | "slow", "performance", "optimize", "timeout", "memory" | BDM query optimization, engine tuning, UIB performance, database tips |
+| `bonita-debugging-expert` | "error", "exception", "bug", "debug", "stuck", stack traces | 4-step debug workflow, log patterns, exception diagnosis, resolution strategies |
+| `bonita-estimation-expert` | "estimate", "how long", "effort", "budget", "proposal" | Effort tables, risk multipliers, phase breakdown, PS service templates |
 
 > **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
 
@@ -513,6 +526,7 @@ Agents are **isolated Claude instances** that receive a delegated task, work ind
 | `bonita-test-generator` | testing-expert, integration-testing-expert | Batch test creation for modules |
 | `bonita-auditor` | audit-expert, coding-standards, bdm-expert, rest-api-expert, testing-expert | Full project audits with scoring |
 | `bonita-documentation-generator` | rest-api-expert, document-expert | Batch README and Javadoc generation |
+| `bonita-ps-ecosystem-auditor` | bonita-coding-standards | Cross-repo health check: counts, drift, tests, git status for all PS repos |
 
 ### Usage
 
@@ -629,7 +643,8 @@ claude-code-toolkit/
 │   ├── code-reviewer.md              # Code review with skills
 │   ├── test-generator.md             # Batch test creation with skills
 │   ├── bonita-auditor.md             # Full project audit with skills
-│   └── documentation-generator.md    # Batch documentation with skills
+│   ├── documentation-generator.md    # Batch documentation with skills
+│   └── bonita-ps-ecosystem-auditor.md # Cross-repo PS ecosystem health check
 ├── commands/
 │   ├── java-maven/                    # ★★☆ Personal — developer productivity
 │   │   ├── compile.md
@@ -718,6 +733,14 @@ claude-code-toolkit/
 │   └── confluence-docs-expert/        # ★★★ Enterprise — MCP skill for Confluence conventions
 │       ├── SKILL.md
 │       └── references/page-templates.md
+│   ├── bonita-connector-expert/       # ★★★ Enterprise — connectors, filters, handlers, REST API ext.
+│   │   └── SKILL.md
+│   ├── bonita-performance-expert/     # ★★★ Enterprise — diagnosis, BDM/engine/UIB optimization
+│   │   └── SKILL.md
+│   ├── bonita-debugging-expert/       # ★★★ Enterprise — structured debug workflow, log patterns
+│   │   └── SKILL.md
+│   └── bonita-estimation-expert/      # ★★★ Enterprise — PS effort estimation framework
+│       └── SKILL.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
 │   ├── pmd-ruleset.xml                # ★★★ Enterprise — static analysis

@@ -4,8 +4,10 @@
 # Purpose: Ensure REST API controllers have proper API documentation annotations
 # Exit 0 = informational only (warnings via stderr)
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | python -c "import sys,json; fp=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); print(fp)" 2>/dev/null)
+FILE_PATH=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; fp=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); print(fp)" 2>/dev/null)
 
 # Only check Java files
 if ! echo "$FILE_PATH" | grep -qE "\.java$"; then

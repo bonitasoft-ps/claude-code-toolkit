@@ -47,7 +47,7 @@ Q1: Will this skill be useful across MULTIPLE Bonita/Java projects?
 
 ```
 ★★★ Enterprise:
-  1. Create in toolkit: C:\JavaProjects\claude-code-toolkit\skills/{skill-name}/
+  1. Create in toolkit: C:\PSProjects\claude-code-toolkit\skills/{skill-name}/
   2. Copy to each project: .claude/skills/{skill-name}/
   3. Push toolkit to GitHub for team sharing
 

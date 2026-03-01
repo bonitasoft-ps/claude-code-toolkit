@@ -4,10 +4,12 @@
 # Purpose: Detect hardcoded magic strings that should be constants
 # Exit 0 = always allow (informational)
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
 
-FILE_PATH=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null)
-NEW_STRING=$(echo "$INPUT" | python -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('new_string',''))" 2>/dev/null)
+FILE_PATH=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null)
+NEW_STRING=$(echo "$INPUT" | "$PYTHON_CMD" -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('new_string',''))" 2>/dev/null)
 
 # Only check Java and Groovy source files in extensions
 if ! echo "$FILE_PATH" | grep -qiE "\.(java|groovy|kt)$"; then
@@ -23,7 +25,7 @@ fi
 
 # Check the new_string for hardcoded string patterns
 # Look for string literals in comparisons or assignments (not in log/exception messages)
-python -c "
+"$PYTHON_CMD" -c "
 import re
 import sys
 
