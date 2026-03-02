@@ -1,7 +1,7 @@
 ---
 name: jira-workflow-expert
 description: "Use when the user asks about creating Jira issues, managing sprints, transitioning issue status, assigning priorities, or following Bonitasoft Jira conventions. Ensures all Jira operations follow team standards for issue types, priorities, labels, and workflows."
-allowed-tools: Read, Grep, Glob, mcp__jira__*
+allowed-tools: Read, Grep, Glob, mcp__claude_ai_Atlassian_2__*Jira*
 ---
 
 # Jira Workflow Expert

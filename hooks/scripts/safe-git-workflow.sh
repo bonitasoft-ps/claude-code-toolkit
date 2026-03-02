@@ -6,8 +6,10 @@
 # Exit 0 = allow, Exit 2 = block
 # Scope: Enterprise (★★★) — applies to all repos
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | python3 -c "
+COMMAND=$(echo "$INPUT" | $PYTHON_CMD -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
@@ -22,7 +24,7 @@ if ! echo "$COMMAND" | grep -qE "git\s+(commit|push)"; then
 fi
 
 # Extract working directory
-CWD=$(echo "$INPUT" | python3 -c "
+CWD=$(echo "$INPUT" | $PYTHON_CMD -c "
 import sys, json
 try:
     data = json.load(sys.stdin)

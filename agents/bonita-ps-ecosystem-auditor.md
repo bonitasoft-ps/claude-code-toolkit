@@ -18,14 +18,24 @@ You are an autonomous audit agent for the Bonitasoft Professional Services toolk
 
 ## Repos to audit
 
+Discover repo paths dynamically using environment variables or workspace root:
+
+```bash
+# Use env vars if set (from MCP config), or discover from workspace root
+PS_ROOT="${BONITA_PS_ROOT:-$(cd "$(dirname "$CLAUDE_PROJECT_DIR")" 2>/dev/null && pwd)}"
+
+REPOS=(
+  "${BONITA_TOOLKIT_PATH:-$PS_ROOT/bonita-upgrade-toolkit}"
+  "${BONITA_AUDIT_PATH:-$PS_ROOT/bonita-audit-toolkit}"
+  "${BONITA_CONNECTORS_PATH:-$PS_ROOT/bonita-connectors-generator-toolkit}"
+  "${BONITA_TEST_TOOLKIT_PATH:-$PS_ROOT/template-test-toolkit}"
+  "${BONITA_DOCS_PATH:-$PS_ROOT/bonita-docs-toolkit}"
+  "$PS_ROOT/bonita-ps-mcp"
+  "$PS_ROOT/claude-code-toolkit"
+)
 ```
-C:\PSProjects\bonita-ps-mcp
-C:\PSProjects\bonita-upgrade-toolkit
-C:\PSProjects\bonita-audit-toolkit
-C:\PSProjects\bonita-connectors-generator-toolkit
-C:\PSProjects\template-test-toolkit
-C:\PSProjects\claude-code-toolkit
-```
+
+Verify each path exists before auditing. Skip repos that are not present.
 
 ## Audit Procedure
 

@@ -2,6 +2,7 @@
 name: bonita-uib-expert
 description: Use when the user asks about Bonita UI Builder (UIB), Appsmith pages, widgets, JS Objects, APIs, dashboard design, page layout, navigation menus, form design, dynamic bindings, data tables, charts, or frontend architecture in Bonita projects. Provides expert guidance on UIB development following Bonitasoft standards.
 allowed-tools: Read, Grep, Glob, Bash
+user-invocable: true
 ---
 
 # Bonita UI Builder (UIB) Expert

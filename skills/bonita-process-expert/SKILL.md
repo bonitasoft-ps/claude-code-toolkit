@@ -2,6 +2,7 @@
 name: bonita-process-expert
 description: Use when the user asks about Bonita process modeling, .proc files, subprocesses, call activities, connectors, actors, contracts, forms, process variables, timers, gateways, events, or process architecture. Provides expert guidance on Bonita BPM process design and implementation patterns.
 allowed-tools: Read, Grep, Glob, Bash
+user-invocable: true
 ---
 
 # Bonita Process Modeling Expert

@@ -10,7 +10,7 @@ Shared Claude Code methodology toolkit for the Bonitasoft PS ecosystem. Provides
 
 ## Structure
 
-- `skills/` — 20 reusable skills (Bonita experts, coding standards, etc.)
+- `skills/` — 22 reusable skills (Bonita experts, coding standards, etc.)
 - `hooks/scripts/` — 15 hooks (code quality, docs consistency, etc.)
 - `commands/` — 19 commands (java-maven, quality, testing, bonita)
 - `agents/` — 5 agent definitions
@@ -21,13 +21,13 @@ Shared Claude Code methodology toolkit for the Bonitasoft PS ecosystem. Provides
 
 - All skills must have YAML frontmatter (name, description, instructions)
 - All skills should have a `references/` directory for progressive disclosure
-- Hooks must be POSIX-compatible (no grep -P, use python3 not python)
+- Hooks must be POSIX-compatible (no grep -P, use PYTHON_CMD fallback pattern)
 - Update README counts when adding or removing any resource
 
 ## Ecosystem
 
-This toolkit is used by 6 PS repos:
+This toolkit is used by 7 PS repos:
 - bonita-upgrade-toolkit, bonita-audit-toolkit, bonita-connectors-generator-toolkit
-- template-test-toolkit, bonita-docs-toolkit, bonita-ps-mcp
+- template-test-toolkit, bonita-docs-toolkit, bonita-ps-mcp, claude-code-toolkit
 
-All exposed via bonita-ps-mcp (57 MCP tools).
+All exposed via bonita-ps-mcp (64 MCP tools).

@@ -3,10 +3,12 @@
 # Fires: PostToolUse on Edit/Write
 # Behavior: Warns about formatting issues (does not block)
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
 
 # Extract file path from JSON input
-FILE_PATH=$(echo "$INPUT" | python3 -c "
+FILE_PATH=$(echo "$INPUT" | $PYTHON_CMD -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
