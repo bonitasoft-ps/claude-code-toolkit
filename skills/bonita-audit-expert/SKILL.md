@@ -2,6 +2,7 @@
 name: bonita-audit-expert
 description: Use when the user asks about code audits, code review, quality assessment, compliance checking, audit reports, project health, technical debt analysis, or generating audit documents (PDF/DOCX) for Bonita projects. Covers backend (Java/Groovy/BPM) and frontend (UIB/Appsmith) audits with corporate report templates.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
+user-invocable: true
 ---
 
 # Bonita Audit Expert

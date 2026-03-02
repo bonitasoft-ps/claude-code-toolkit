@@ -2,6 +2,7 @@
 name: bonita-integration-testing-expert
 description: "Enterprise skill for integration testing of Bonita REST API extensions. Auto-invoked when user asks about: integration tests, end-to-end controller tests, API testing, controller testing, REST API testing, doHandle testing, full request lifecycle tests, HTTP status code testing, mock chain setup, RestApiResponseBuilder tests, or testing the complete request-to-response flow in Bonita projects."
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
+user-invocable: true
 ---
 
 # Bonita Integration Testing Expert

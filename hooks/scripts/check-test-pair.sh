@@ -14,8 +14,15 @@ if ! echo "$FILE_PATH" | grep -qE "src/main/java/.*\.java$"; then
     exit 0
 fi
 
-# Derive expected test paths
+# Derive class name
 CLASS_NAME=$(basename "$FILE_PATH" .java)
+
+# Skip classes that don't need property tests
+case "$CLASS_NAME" in
+    *Configuration|*Config|*Controller|*Handler|*Application|*Exception|*Constants|*Enum|package-info)
+        exit 0
+        ;;
+esac
 RELATIVE=$(echo "$FILE_PATH" | sed 's|.*src/main/java/|src/test/java/|')
 TEST_DIR=$(dirname "$RELATIVE")
 UNIT_TEST="$TEST_DIR/${CLASS_NAME}Test.java"

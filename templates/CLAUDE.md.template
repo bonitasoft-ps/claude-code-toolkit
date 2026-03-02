@@ -74,7 +74,8 @@ When starting a task, read these files for project context:
 5. **Run tests** before considering work complete: `/run-tests`
 
 ## Git Workflow
-- Branch naming: `feature/`, `fix/`, `refactor/`, `chore/`
-- Commit messages: conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `test:`, `docs:`)
-- Always compile before committing (enforced by pre-commit hook)
-- Never push directly to master/main
+- Branch naming: `claude/{type}/{short-description}` (e.g., `claude/feat/add-connector`, `claude/fix/groovy-null-check`)
+  - Types: feat, fix, docs, refactor, test, chore
+- Commit messages: `[LABEL] Short description of what changed`
+- Always compile before committing (enforced by pre-commit hook if Java files staged)
+- Never push directly to master/main — always create a PR

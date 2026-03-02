@@ -4,9 +4,11 @@
 # Behavior: Warns when knowledge/ files are modified but claude-project/ may be out of sync
 # Scope: ★★☆ Personal — for projects maintaining claude-project/ mirrors
 
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "python3")}"
+
 INPUT=$(cat)
 
-FILE_PATH=$(echo "$INPUT" | python3 -c "
+FILE_PATH=$(echo "$INPUT" | $PYTHON_CMD -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
@@ -27,7 +29,7 @@ if echo "$FILE_PATH" | grep -qiE "claude-project/"; then
 fi
 
 # Check if claude-project/ directory exists in the repo
-CWD=$(echo "$INPUT" | python3 -c "
+CWD=$(echo "$INPUT" | $PYTHON_CMD -c "
 import sys, json
 try:
     data = json.load(sys.stdin)

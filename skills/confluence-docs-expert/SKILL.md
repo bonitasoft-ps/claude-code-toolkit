@@ -1,7 +1,7 @@
 ---
 name: confluence-docs-expert
 description: "Use when the user asks about creating or updating Confluence pages, organizing documentation spaces, writing technical specifications, or following Bonitasoft documentation standards. Ensures all Confluence content follows team templates and conventions."
-allowed-tools: Read, Grep, Glob, Write, mcp__confluence__*
+allowed-tools: Read, Grep, Glob, Write, mcp__claude_ai_Atlassian_2__*Confluence*
 ---
 
 # Confluence Documentation Expert

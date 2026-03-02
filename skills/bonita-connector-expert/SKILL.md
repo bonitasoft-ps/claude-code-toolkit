@@ -197,116 +197,13 @@ mvn package
 
 ## Actor Filters
 
-### AbstractUserFilter Lifecycle
-
-```java
-public class ManagerActorFilter extends AbstractUserFilter {
-
-    public static final String INPUT_INITIATOR_ID = "initiatorId";
-
-    @Override
-    public void validateInputParameters() throws ConnectorValidationException {
-        Long initiatorId = (Long) getInputParameter(INPUT_INITIATOR_ID);
-        if (initiatorId == null || initiatorId <= 0) {
-            throw new ConnectorValidationException(this, List.of("initiatorId must be a positive number"));
-        }
-    }
-
-    @Override
-    public List<Long> filter(String actorName) throws UserFilterException {
-        Long initiatorId = (Long) getInputParameter(INPUT_INITIATOR_ID);
-        try {
-            IdentityAPI identityAPI = APIAccessor.getIdentityAPI();
-            User initiator = identityAPI.getUser(initiatorId);
-            // Find the manager of the initiator
-            return identityAPI.getUsersByManager(initiatorId, 0, 100)
-                    .stream()
-                    .map(User::getId)
-                    .toList();
-        } catch (Exception e) {
-            throw new UserFilterException("Failed to find manager for user " + initiatorId, e);
-        }
-    }
-
-    @Override
-    public boolean shouldAutoAssignTaskIfSingleResult() {
-        return true; // Auto-assign if only one candidate found
-    }
-}
-```
-
-### Common Actor Filter Patterns
-
-| Filter type | `filter()` strategy |
-|-------------|---------------------|
-| Manager filter | `identityAPI.getUsersByManager(initiatorId, ...)` |
-| Group filter | `identityAPI.getUsersInGroup(groupId, ...)` |
-| Role filter | `identityAPI.getUsersWithRole(roleId, ...)` |
-| Custom attribute filter | Query users + filter by `identityAPI.getUserMemberships(...)` |
+See `references/actor-filter-patterns.md` for complete AbstractUserFilter lifecycle, code examples, and common filter patterns (Manager, Group, Role, Custom attribute).
 
 ---
 
 ## Event Handlers
 
-### SHandler Interface
-
-```java
-public class ProcessStateHandler implements SHandler<SEvent> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStateHandler.class);
-
-    @Override
-    public void execute(SEvent event) throws SHandlerExecutionException {
-        if (event instanceof SProcessInstanceStateChangedEvent stateEvent) {
-            ProcessInstanceState newState = stateEvent.getProcessInstanceState();
-            long processInstanceId = stateEvent.getProcessInstanceId();
-            LOGGER.info("Process {} changed state to {}", processInstanceId, newState);
-            try {
-                handleStateChange(processInstanceId, newState);
-            } catch (Exception e) {
-                throw new SHandlerExecutionException(e.getMessage(), e);
-            }
-        }
-    }
-
-    @Override
-    public boolean isInterested(SEvent event) {
-        return event instanceof SProcessInstanceStateChangedEvent;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "com.company.handlers.ProcessStateHandler";
-    }
-}
-```
-
-### Common Event Types
-
-| Event class | Level | Trigger |
-|-------------|-------|---------|
-| `SProcessInstanceStateChangedEvent` | Process | Process created, completed, cancelled, aborted |
-| `SActivityInstanceStateChangedEvent` | Task | Task started, completed, failed, skipped |
-| `SHumanTaskAssignedEvent` | Human Task | Task assigned or unassigned to/from user |
-| `SConnectorEvent` | Connector | Connector started, completed, failed |
-
-### Registration
-
-**Bonita 7.x** — `bonita-tenant-sp-custom.xml`:
-```xml
-<bean id="processStateHandler" class="com.company.handlers.ProcessStateHandler"/>
-<bean id="eventService" class="org.bonitasoft.engine.events.impl.EventServiceImpl">
-    <property name="handlers">
-        <map>
-            <entry key="PROCESSINSTANCE_STATE_UPDATED">
-                <set><ref bean="processStateHandler"/></set>
-            </entry>
-        </map>
-    </property>
-</bean>
-```
-
-**Bonita 2024+** — Via REST API or configuration service (check official docs for your version).
+See `references/event-handler-registration.md` for SHandler interface implementation, common event types, and registration in Bonita 7.x and 2024+.
 
 ---
 

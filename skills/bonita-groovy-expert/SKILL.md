@@ -1,6 +1,8 @@
 ---
 name: bonita-groovy-expert
 description: Use when the user asks about Groovy scripts in Bonita processes, including initProcess scripts, connector scripts, operation scripts, form mappings, script tasks, or any Groovy code embedded in .proc files. Helps write, debug, and optimize Groovy code within the Bonita BPM context.
+allowed-tools: Read, Grep, Glob, Bash
+user-invocable: true
 ---
 
 # Bonita Groovy Script Expert
