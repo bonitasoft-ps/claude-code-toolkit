@@ -56,12 +56,15 @@ project-root/
 - Packages: lowercase, dot-separated
 
 ## Context Files
-<!-- TODO: List your project's context/documentation files -->
+<!-- TODO: List your project's documentation files -->
 When starting a task, read these files for project context:
-- `AGENTS.md` - AI agent rules and project architecture
-- `context-ia/01-architecture.mdc` - Architecture decisions
-- `context-ia/02-datamodel.mdc` - Data model rules
-- `context-ia/03-integrations.mdc` - Backend integration standards
+- `README.md` - Project overview and architecture
+- `CLAUDE.md` - This file: team rules and project standards
+
+<!-- Skills are auto-invoked based on file patterns. No need to load context files manually. -->
+<!-- Read CLAUDE.md and README.md for project rules. -->
+<!-- Example: if you have architecture decisions, link them here: -->
+<!-- - `docs/architecture.md` - Architecture decisions -->
 
 ## Before Making Changes
 1. **Read existing code** before modifying - understand the context

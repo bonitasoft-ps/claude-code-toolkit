@@ -50,10 +50,10 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 18 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 20 |
 | **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 5 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 19 |
-| **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 14 |
+| **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 15 |
 | **Configs** | Standard rule files (Checkstyle, PMD, EditorConfig) | 3 |
 | **Templates** | Ready-to-use settings, CLAUDE.md starter, GitHub Actions | 4 |
 
@@ -297,6 +297,8 @@ These resources **depend on the project type**. Install them in `.claude/` withi
 | `check-controller-readme.sh` | Bonita BPM | Warns when creating a controller without README.md |
 | `check-method-usages.sh` | Multi-module Java | Lists files calling a method when its signature changes |
 | `check-test-pair.sh` | Java libraries | Warns if *Test.java or *PropertyTest.java is missing |
+| `check-docs-consistency.sh` | Any project | Detects drift between documented counts and actual filesystem counts |
+| `knowledge-file-reminder.sh` | Any project | Warns when knowledge/ files change and claude-project/ may need sync |
 
 #### Project Templates
 
@@ -799,6 +801,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 | [template-test-toolkit](https://github.com/bonitasoft-ps/template-test-toolkit) | 1 | 3 | 0 |
 
 ### Presales Projects (bonitasoft-presales)
+
+> **Note:** These repositories remain under the `bonitasoft-presales` GitHub organization, separate from the PS toolkit repos under `bonitasoft-ps`.
 
 | Repository | Description |
 |-----------|-------------|

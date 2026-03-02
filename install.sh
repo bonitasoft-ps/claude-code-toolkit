@@ -68,7 +68,22 @@ install_enterprise() {
     echo "  - configs/pmd-ruleset.xml       (static analysis)"
     echo "  - configs/.editorconfig         (editor formatting)"
     echo "  - hooks: pre-commit-compile, check-code-format, check-code-style, check-hardcoded-strings"
-    echo "  - skills: bonita-bdm-expert, bonita-rest-api-expert"
+    echo ""
+    echo "  Skills — Bonita Experts:"
+    echo "    bonita-bdm-expert, bonita-rest-api-expert, bonita-connector-expert"
+    echo "    bonita-performance-expert, bonita-debugging-expert, bonita-estimation-expert"
+    echo "    bonita-groovy-expert, bonita-process-expert, bonita-uib-expert"
+    echo "    bonita-document-expert, bonita-audit-expert"
+    echo ""
+    echo "  Skills — Methodology:"
+    echo "    bonita-coding-standards, testing-expert, bonita-integration-testing-expert"
+    echo "    skill-creator, safe-git-workflow"
+    echo ""
+    echo "  Skills — MCP:"
+    echo "    jira-workflow-expert, confluence-docs-expert"
+    echo ""
+    echo "  Skills — Advanced:"
+    echo "    multi-repo-manager, prompt-engineering-log"
     echo ""
     read -p "Continue? [y/N]: " CONFIRM
     if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
@@ -98,12 +113,23 @@ install_enterprise() {
     done
     chmod +x "$MANAGED_DIR/hooks/"*.sh 2>/dev/null || true
 
-    # Copy skills
+    # Copy all 20 skills
     mkdir -p "$MANAGED_DIR/skills"
-    echo -e "  Copying skills/bonita-bdm-expert..."
-    cp -r "$TOOLKIT_DIR/skills/bonita-bdm-expert" "$MANAGED_DIR/skills/"
-    echo -e "  Copying skills/bonita-rest-api-expert..."
-    cp -r "$TOOLKIT_DIR/skills/bonita-rest-api-expert" "$MANAGED_DIR/skills/"
+    echo -e "  Copying all 20 skills..."
+    for skill in \
+        bonita-bdm-expert bonita-rest-api-expert bonita-connector-expert \
+        bonita-performance-expert bonita-debugging-expert bonita-estimation-expert \
+        bonita-groovy-expert bonita-process-expert bonita-uib-expert \
+        bonita-document-expert bonita-audit-expert \
+        bonita-coding-standards testing-expert bonita-integration-testing-expert \
+        skill-creator safe-git-workflow \
+        jira-workflow-expert confluence-docs-expert \
+        multi-repo-manager prompt-engineering-log; do
+        if [ -d "$TOOLKIT_DIR/skills/$skill" ]; then
+            echo -e "    Copying skills/$skill..."
+            cp -r "$TOOLKIT_DIR/skills/$skill" "$MANAGED_DIR/skills/"
+        fi
+    done
 
     # Generate managed-settings.json if it doesn't exist
     if [ ! -f "$MANAGED_DIR/managed-settings.json" ]; then
@@ -260,8 +286,19 @@ install_project() {
     cp "$TOOLKIT_DIR/configs/.editorconfig" "$PROJECT_DIR/"
 
     echo -e "  Copying skills..."
-    cp -r "$TOOLKIT_DIR/skills/bonita-bdm-expert" "$PROJECT_DIR/.claude/skills/"
-    cp -r "$TOOLKIT_DIR/skills/bonita-rest-api-expert" "$PROJECT_DIR/.claude/skills/"
+    for skill in \
+        bonita-bdm-expert bonita-rest-api-expert bonita-connector-expert \
+        bonita-performance-expert bonita-debugging-expert bonita-estimation-expert \
+        bonita-groovy-expert bonita-process-expert bonita-uib-expert \
+        bonita-document-expert bonita-audit-expert \
+        bonita-coding-standards testing-expert bonita-integration-testing-expert \
+        skill-creator safe-git-workflow \
+        jira-workflow-expert confluence-docs-expert \
+        multi-repo-manager prompt-engineering-log; do
+        if [ -d "$TOOLKIT_DIR/skills/$skill" ]; then
+            cp -r "$TOOLKIT_DIR/skills/$skill" "$PROJECT_DIR/.claude/skills/"
+        fi
+    done
 
     case "$PROJECT_TYPE" in
         1)

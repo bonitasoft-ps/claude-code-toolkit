@@ -16,6 +16,7 @@ Agents are **isolated Claude instances** that receive a task, work independently
 | `bonita-test-generator` | testing-expert, integration-testing-expert | Batch test creation | ★☆☆ Project |
 | `bonita-auditor` | audit-expert, coding-standards, bdm-expert, rest-api-expert, testing-expert | Full project audits | ★☆☆ Project |
 | `bonita-documentation-generator` | rest-api-expert, document-expert | Batch documentation | ★☆☆ Project |
+| `bonita-ps-ecosystem-auditor` | bonita-coding-standards | Cross-repo health check: counts, drift, tests, git status for all PS repos | ★☆☆ Project |
 
 ## Installation
 
