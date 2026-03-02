@@ -141,6 +141,10 @@ Resources are organized by **scope** — who they affect and where they're insta
 |-------|------------------------|-------|
 | `bonita-bdm-expert` | User asks about BDM, queries, JPQL, data model | ★★★ |
 | `bonita-rest-api-expert` | User asks about REST API extensions, controllers | ★★★ |
+| `bonita-connector-expert` | *Connector*.java, *Filter*.java, *Handler*.java files | ★★★ |
+| `bonita-performance-expert` | "slow", "performance", "optimize", "timeout", "memory" | ★★★ |
+| `bonita-debugging-expert` | "error", "exception", "bug", "debug", "stuck", stack traces | ★★★ |
+| `bonita-estimation-expert` | "estimate", "how long", "effort", "budget", "proposal" | ★★★ |
 | `jira-workflow-expert` | User manages Jira issues, priorities, labels (requires Jira MCP) | ★★★ |
 | `confluence-docs-expert` | User creates/updates Confluence pages (requires Confluence MCP) | ★★★ |
 
