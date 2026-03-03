@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "repo": "claude-code-toolkit",
+  "label": "SHARED",
+  "mappings": [],
+  "generated": [
+    { "source_dir": "skills/", "target": "claude-project/knowledge/skills-catalog.md", "generator": "extract-skill-definitions" },
+    { "source_dir": "hooks/scripts/", "target": "claude-project/knowledge/hooks-reference.md", "generator": "extract-hook-definitions" },
+    { "source_dir": "commands/", "target": "claude-project/knowledge/commands-reference.md", "generator": "extract-command-definitions" }
+  ],
+  "static": ["claude-project/README.md", "claude-project/INSTRUCTIONS.md", "claude-project/CHANGELOG.md"]
+}
