@@ -1,12 +1,12 @@
 #!/bin/bash
 # sync-claude-project.sh — Sync claude-project/ folders using .claude-project-sync.json manifests
 # Usage: sync-claude-project.sh [--all | <repo-path>]
+# Dependencies: node (for JSON parsing, no jq needed)
 
 set -e
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 NC='\033[0m'
 
 REPOS=(
@@ -19,6 +19,11 @@ REPOS=(
   "/c/PSProjects/claude-code-toolkit"
 )
 
+# Convert Git Bash path (/c/...) to Windows path (c:/...) for Node.js
+to_node_path() {
+  echo "$1" | sed 's|^/\([a-zA-Z]\)/|\1:/|'
+}
+
 sync_repo() {
   local REPO_PATH="$1"
   local MANIFEST="$REPO_PATH/.claude-project-sync.json"
@@ -28,29 +33,26 @@ sync_repo() {
     return 0
   fi
 
-  local REPO_NAME
-  REPO_NAME=$(jq -r '.repo' "$MANIFEST")
-  local LABEL
-  LABEL=$(jq -r '.label' "$MANIFEST")
+  # Parse entire manifest in one node call — outputs pipe-separated lines
+  local NODE_PATH
+  NODE_PATH=$(to_node_path "$MANIFEST")
+  local PARSED
+  PARSED=$(node -e "
+    const d=JSON.parse(require('fs').readFileSync('$NODE_PATH','utf8'));
+    console.log('META|'+d.repo+'|'+d.label);
+    (d.mappings||[]).forEach(m=>console.log('MAP|'+(m.source||'')+'|'+(m.target||'')+'|'+(m.glob||'')+'|'+(m.type||'directory')));
+  " 2>/dev/null)
 
-  local TOTAL=0
-  local MODIFIED=0
-  local NEW=0
-  local UNCHANGED=0
+  local REPO_NAME LABEL
+  REPO_NAME=$(echo "$PARSED" | grep "^META" | cut -d'|' -f2)
+  LABEL=$(echo "$PARSED" | grep "^META" | cut -d'|' -f3)
 
-  # Process direct file mappings
-  local MAPPING_COUNT
-  MAPPING_COUNT=$(jq '.mappings | length' "$MANIFEST")
+  local TOTAL=0 MODIFIED=0 NEW=0 UNCHANGED=0
 
-  for i in $(seq 0 $((MAPPING_COUNT - 1))); do
-    local SOURCE TARGET GLOB TYPE
-    SOURCE=$(jq -r ".mappings[$i].source" "$MANIFEST")
-    TARGET=$(jq -r ".mappings[$i].target" "$MANIFEST")
-    GLOB=$(jq -r ".mappings[$i].glob // empty" "$MANIFEST")
-    TYPE=$(jq -r ".mappings[$i].type // \"directory\"" "$MANIFEST")
+  while IFS='|' read -r TAG SOURCE TARGET GLOB TYPE; do
+    [ "$TAG" = "MAP" ] || continue
 
     if [ "$TYPE" = "file" ]; then
-      # Single file mapping
       local SRC_FILE="$REPO_PATH/$SOURCE"
       local DST_FILE="$REPO_PATH/$TARGET"
       TOTAL=$((TOTAL + 1))
@@ -58,7 +60,6 @@ sync_repo() {
       if [ ! -f "$SRC_FILE" ]; then
         continue
       fi
-
       if [ ! -f "$DST_FILE" ]; then
         mkdir -p "$(dirname "$DST_FILE")"
         cp "$SRC_FILE" "$DST_FILE"
@@ -70,7 +71,6 @@ sync_repo() {
         UNCHANGED=$((UNCHANGED + 1))
       fi
     else
-      # Directory mapping with glob
       local SRC_DIR="$REPO_PATH/$SOURCE"
       local DST_DIR="$REPO_PATH/$TARGET"
 
@@ -98,9 +98,8 @@ sync_repo() {
         fi
       done
     fi
-  done
+  done <<< "$PARSED"
 
-  # Summary
   if [ $NEW -eq 0 ] && [ $MODIFIED -eq 0 ]; then
     echo -e "${GREEN}OK${NC}   [$LABEL] $REPO_NAME: $TOTAL files checked, all in sync"
   else
