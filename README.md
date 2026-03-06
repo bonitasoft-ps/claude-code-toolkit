@@ -225,6 +225,8 @@ These resources enforce **organization-wide standards**. We recommend deploying 
 | `bonita-performance-expert` | "slow", "performance", "optimize", "timeout", "memory" | BDM query optimization, engine tuning, UIB performance, database tips |
 | `bonita-debugging-expert` | "error", "exception", "bug", "debug", "stuck", stack traces | 4-step debug workflow, log patterns, exception diagnosis, resolution strategies |
 | `bonita-estimation-expert` | "estimate", "how long", "effort", "budget", "proposal" | Effort tables, risk multipliers, phase breakdown, PS service templates |
+| `prompt-quality-advisor` | Prompt writing, "is this prompt good?", improve prompt, XML tags | 8-dimension scoring, XML tag patterns, few-shot, eval templates |
+| `project-spec-generator` | "generate specs", "user stories", "PRD", "architecture", project setup | PRD, architecture docs, user stories with AC, BMAD/SDD workflow |
 
 > **Multi-file structure:** Every skill uses progressive disclosure — SKILL.md (< 500 lines) contains core rules; `references/`, `scripts/`, and `assets/` directories contain detailed docs, executable scripts, and templates that Claude loads only when needed. This replaces the old `context-ia/` approach where ALL docs were loaded at startup.
 
@@ -581,6 +583,8 @@ Plugins are **packaged Claude Code extensions** distributed through marketplaces
 |----------|-------------|
 | `testing-expert` | JUnit 5 + Mockito + AssertJ + jqwik patterns are universal |
 | `skill-creator` | Meta-skill useful for any Claude Code user |
+| `prompt-quality-advisor` | Prompt validation and improvement is universal across all LLM users |
+| `project-spec-generator` | PRD, user stories, and architecture docs are domain-agnostic |
 
 ### Dual Publishing Strategy
 
@@ -743,6 +747,16 @@ claude-code-toolkit/
 │   │   └── SKILL.md
 │   └── bonita-estimation-expert/      # ★★★ Enterprise — PS effort estimation framework
 │       └── SKILL.md
+│   ├── prompt-quality-advisor/        # ★★★ Enterprise — prompt validation and improvement
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── techniques.md
+│   │       └── eval-templates.md
+│   └── project-spec-generator/        # ★★★ Enterprise — PRD, architecture, user stories (SDD/BMAD)
+│       ├── SKILL.md
+│       └── references/
+│           ├── templates.md
+│           └── bmad-guide.md
 ├── configs/
 │   ├── checkstyle.xml                 # ★★★ Enterprise — code style rules
 │   ├── pmd-ruleset.xml                # ★★★ Enterprise — static analysis
