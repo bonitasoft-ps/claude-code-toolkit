@@ -336,6 +336,54 @@ class MyServiceConnectorIT {
 
 ---
 
+## Pool-Level vs Activity-Level Connectors
+
+### Placement
+
+| Level | Scope | XML Location |
+|-------|-------|-------------|
+| **Pool-level** | Fires when the entire process instance completes or is cancelled | Direct child of `<elements xmi:type="process:Pool">` |
+| **Activity-level** | Fires when a specific task starts or completes | Child of a task element (e.g., `<elements xmi:type="process:Task">`) |
+
+### Transaction Isolation
+
+**Each pool-level ON_FINISH connector runs in its own database transaction.**
+
+```
+Process completes → End Event
+  → Connector 1 script → Output mapping 1 → TX1 COMMIT
+  → Connector 2 script → Output mapping 2 → TX2 COMMIT
+  → Connector 3 script → Output mapping 3 → TX3 COMMIT
+```
+
+Execution order is **sequential**, determined by XML document order in the `.proc` file (top to bottom).
+
+If Connector 2 fails:
+- TX1 changes are **committed** (already done)
+- TX2 changes are **rolled back**
+- TX3 may or may not execute depending on `ignoreErrors`
+
+### Self-Destructive Connector Pattern
+
+When a pool-level ON_FINISH connector calls `cancelProcessInstance()` on its own root process:
+
+1. Cascade cancellation triggers (all subprocesses in the same `rootProcessInstanceId` tree are cancelled)
+2. The cascade deletes `connector_instance` rows for the cancelled process
+3. When the output mapping transaction tries to commit, it fails with `SConnectorInstanceNotFoundException`
+
+**Fix — Two-Connector Pattern:**
+
+```
+Connector 1 (TX1): Persist BDM data → COMMIT ✓
+Connector 2 (TX2): Call cancelProcessInstance → cascade kills TX2 → ROLLBACK (acceptable)
+```
+
+- Move all BDM writes to a preceding connector (separate transaction)
+- Remove output mappings from the connector that calls cancel
+- Accept that the cancel connector's transaction will be rolled back
+
+---
+
 ## Version Compatibility
 
 | Feature | Bonita 7.x | Bonita 2021.x–2023.x | Bonita 2024+ |

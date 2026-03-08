@@ -114,6 +114,47 @@ When the user asks to compare process versions:
 4. **Validate architecture**: Ensure process follows Bonita best practices
 5. **Suggest improvements**: Identify opportunities for subprocess extraction, error handling, optimization
 
+## .proc File Analysis
+
+Process definitions in `.proc` files use **EMF/XMI XML format** with multiple namespaces:
+
+| Namespace | Content |
+|-----------|---------|
+| `process` | Process logic: pools, tasks, gateways, events, data |
+| `expression` | Expressions and Groovy scripts |
+| `notation` | Visual diagram layout (positions, sizes) |
+| `connectorconfiguration` | Connector parameter values |
+| `actormapping` | Actor-to-user/group mapping |
+| `configuration` | Process configuration |
+
+### Structure Hierarchy
+
+```
+MainProcess → Pool(s) → Lane(s) → Elements (Tasks, Gateways, Events)
+                     → Connectors (pool-level ON_FINISH/ON_ENTER)
+                     → Data (process variables, BDM references)
+                     → Actors
+                     → Connections (sequence flows)
+```
+
+### Pool-Level Connector Ordering
+
+Pool-level ON_FINISH connectors execute **sequentially in XML document order** (top to bottom in the `.proc` file). Each connector runs in its own database transaction.
+
+**Critical**: If a connector calls `cancelProcessInstance()` on its own root process, the cascade cancellation deletes the connector's own `connector_instance` row, causing `SConnectorInstanceNotFoundException` on the output mapping. **Fix**: Move BDM writes to a preceding connector (separate transaction). See `bonita-proc-file-expert` skill for details.
+
+### Groovy Scripts in .proc Files
+
+Scripts embedded in `.proc` files must be XML-encoded:
+- `<` → `&lt;`, `>` → `&gt;`, `&` → `&amp;`, `"` → `&quot;`
+- Newlines → `&#xA;`, tabs → `&#x9;`
+
+### For Deep .proc File Analysis
+
+Use the `bonita-proc-file-expert` skill for detailed .proc file parsing, modification, connector analysis, and validation.
+
+---
+
 ## Reference Documents
 
 For detailed guidance on specific topics, read the corresponding reference file:
@@ -124,3 +165,4 @@ For detailed guidance on specific topics, read the corresponding reference file:
 | 3-level process architecture methodology | `references/process-tiering.md` |
 | Contract design patterns and examples | `references/contract-patterns.md` |
 | Connector and error handling patterns | `references/connector-error-patterns.md` |
+| .proc file analysis and modification | Use `bonita-proc-file-expert` skill |
