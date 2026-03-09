@@ -156,10 +156,10 @@ This toolkit supports 7 PS repositories:
 | bonita-connectors-generator-toolkit | Connector generation | 5 skills |
 | template-test-toolkit | Integration test template | 2 skills |
 | bonita-docs-toolkit | RAG knowledge base (21 versions) | 1 skill |
-| bonita-ps-mcp | MCP server (64 tools) | 3 skills |
+| bonita-ai-agent-mcp | MCP server (64 tools) | 3 skills |
 | claude-code-toolkit | This repo — shared methodology | 22 skills |
 
-All exposed via `bonita-ps-mcp` with 64 MCP tools for Claude Desktop integration.
+All exposed via `bonita-ai-agent-mcp` with 64 MCP tools for Claude Desktop integration.
 
 ## Tone and Style
 

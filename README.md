@@ -811,7 +811,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 | [bonita-upgrade-toolkit](https://github.com/bonitasoft-ps/bonita-upgrade-toolkit) | 10 | 2 | 6 |
 | [bonita-audit-toolkit](https://github.com/bonitasoft-ps/bonita-audit-toolkit) | 12 | 3 | 7 |
 | [bonita-connectors-generator-toolkit](https://github.com/bonitasoft-ps/bonita-connectors-generator-toolkit) | 5 | 4 | 9 |
-| [bonita-ps-mcp](https://github.com/bonitasoft-ps/bonita-ps-mcp) | 1 | 1 | 4 |
+| [bonita-ai-agent-mcp](https://github.com/bonitasoft-ps/bonita-ai-agent-mcp) | 1 | 1 | 4 |
 | [template-test-toolkit](https://github.com/bonitasoft-ps/template-test-toolkit) | 1 | 3 | 0 |
 
 ### Presales Projects (bonitasoft-presales)
@@ -828,9 +828,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 For PS team members, the fastest way to get everything configured:
 
 ```bash
-# Clone bonita-ps-mcp and run the all-in-one setup
-git clone git@github.com:bonitasoft-ps/bonita-ps-mcp.git
-bash bonita-ps-mcp/scripts/setup-ps-tools.sh ~/ps-tools
+# Clone bonita-ai-agent-mcp and run the all-in-one setup
+git clone git@github.com:bonitasoft-ps/bonita-ai-agent-mcp.git
+bash bonita-ai-agent-mcp/scripts/setup-ps-tools.sh ~/ps-tools
 ```
 
 This clones all 6 repos, installs MCP dependencies, configures personal commands, and generates the Claude Desktop config.

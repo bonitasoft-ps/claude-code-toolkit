@@ -28,6 +28,6 @@ Shared Claude Code methodology toolkit for the Bonitasoft PS ecosystem. Provides
 
 This toolkit is used by 7 PS repos:
 - bonita-upgrade-toolkit, bonita-audit-toolkit, bonita-connectors-generator-toolkit
-- template-test-toolkit, bonita-docs-toolkit, bonita-ps-mcp, claude-code-toolkit
+- template-test-toolkit, bonita-docs-toolkit, bonita-ai-agent-mcp, claude-code-toolkit
 
-All exposed via bonita-ps-mcp (64 MCP tools).
+All exposed via bonita-ai-agent-mcp (64 MCP tools).

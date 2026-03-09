@@ -187,7 +187,7 @@ The setup script runs:
 claude mcp add playwright -- npx @playwright/mcp@latest
 ```
 
-For Claude Desktop, the script in `bonita-ps-mcp/scripts/setup-ps-tools.sh` adds it to `claude_desktop_config.json`:
+For Claude Desktop, the script in `bonita-ai-agent-mcp/scripts/setup-ps-tools.sh` adds it to `claude_desktop_config.json`:
 ```json
 "playwright": {
   "command": "npx",

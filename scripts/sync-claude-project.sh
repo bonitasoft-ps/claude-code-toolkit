@@ -15,7 +15,7 @@ REPOS=(
   "/c/PSProjects/bonita-connectors-generator-toolkit"
   "/c/PSProjects/bonita-docs-toolkit"
   "/c/PSProjects/template-test-toolkit"
-  "/c/PSProjects/bonita-ps-mcp"
+  "/c/PSProjects/bonita-ai-agent-mcp"
   "/c/PSProjects/claude-code-toolkit"
 )
 
