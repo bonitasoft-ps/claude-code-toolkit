@@ -83,7 +83,7 @@ install_enterprise() {
     echo "    jira-workflow-expert, confluence-docs-expert"
     echo ""
     echo "  Skills — Advanced:"
-    echo "    multi-repo-manager, prompt-engineering-log"
+    echo "    multi-repo-manager, prompt-engineering-log, prompt-efficiency"
     echo ""
     read -p "Continue? [y/N]: " CONFIRM
     if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
@@ -113,9 +113,9 @@ install_enterprise() {
     done
     chmod +x "$MANAGED_DIR/hooks/"*.sh 2>/dev/null || true
 
-    # Copy all 20 skills
+    # Copy all 21 skills
     mkdir -p "$MANAGED_DIR/skills"
-    echo -e "  Copying all 20 skills..."
+    echo -e "  Copying all 21 skills..."
     for skill in \
         bonita-bdm-expert bonita-rest-api-expert bonita-connector-expert \
         bonita-performance-expert bonita-debugging-expert bonita-estimation-expert \
@@ -124,7 +124,7 @@ install_enterprise() {
         bonita-coding-standards testing-expert bonita-integration-testing-expert \
         skill-creator safe-git-workflow \
         jira-workflow-expert confluence-docs-expert \
-        multi-repo-manager prompt-engineering-log; do
+        multi-repo-manager prompt-engineering-log prompt-efficiency; do
         if [ -d "$TOOLKIT_DIR/skills/$skill" ]; then
             echo -e "    Copying skills/$skill..."
             cp -r "$TOOLKIT_DIR/skills/$skill" "$MANAGED_DIR/skills/"
@@ -294,7 +294,7 @@ install_project() {
         bonita-coding-standards testing-expert bonita-integration-testing-expert \
         skill-creator safe-git-workflow \
         jira-workflow-expert confluence-docs-expert \
-        multi-repo-manager prompt-engineering-log; do
+        multi-repo-manager prompt-engineering-log prompt-efficiency; do
         if [ -d "$TOOLKIT_DIR/skills/$skill" ]; then
             cp -r "$TOOLKIT_DIR/skills/$skill" "$PROJECT_DIR/.claude/skills/"
         fi

@@ -30,7 +30,7 @@ REPOS=(
   "${BONITA_CONNECTORS_PATH:-$PS_ROOT/bonita-connectors-generator-toolkit}"
   "${BONITA_TEST_TOOLKIT_PATH:-$PS_ROOT/template-test-toolkit}"
   "${BONITA_DOCS_PATH:-$PS_ROOT/bonita-docs-toolkit}"
-  "$PS_ROOT/bonita-ps-mcp"
+  "$PS_ROOT/bonita-ai-agent-mcp"
   "$PS_ROOT/claude-code-toolkit"
 )
 ```
@@ -47,7 +47,7 @@ For each repo, collect:
 2. **Commands count**: `ls .claude/commands/` — count .md files (recursive)
 3. **Hooks count**: `ls .claude/hooks/scripts/*.sh` and `*.bat` — count scripts
 4. **Agents count**: `ls .claude/agents/*.md` (exclude README.md)
-5. **MCP tools count** (bonita-ps-mcp only): count exported tool functions in `src/`
+5. **MCP tools count** (bonita-ai-agent-mcp only): count exported tool functions in `src/`
 
 Compare against documented counts in:
 - `CLAUDE.md` or `README.md` at repo root
@@ -89,7 +89,7 @@ For each SKILL.md found:
 ### Phase 5: Test execution
 
 For repos with tests:
-- `bonita-ps-mcp`: run `node --test` in repo root
+- `bonita-ai-agent-mcp`: run `node --test` in repo root
 - `bonita-docs-toolkit`: run `npm test` in repo root
 - Java repos: run `mvn test -q` if `pom.xml` exists
 
@@ -121,7 +121,7 @@ Flag repos with:
 
 | Repo | Skills | Commands | Hooks | Tests | Git | Status |
 |------|--------|----------|-------|-------|-----|--------|
-| bonita-ps-mcp | X/X | X/X | X/X | X pass | clean | OK/WARN/FAIL |
+| bonita-ai-agent-mcp | X/X | X/X | X/X | X pass | clean | OK/WARN/FAIL |
 | bonita-upgrade-toolkit | X/X | X/X | X/X | — | clean | OK/WARN/FAIL |
 | bonita-audit-toolkit | X/X | X/X | X/X | — | clean | OK/WARN/FAIL |
 | bonita-connectors-toolkit | X/X | X/X | X/X | — | clean | OK/WARN/FAIL |
@@ -141,14 +141,14 @@ Format: actual/documented (actual found vs what README claims)
 
 | Repo | Tests | Pass | Fail | Duration |
 |------|-------|------|------|---------|
-| bonita-ps-mcp | 56 | 56 | 0 | 2.3s |
+| bonita-ai-agent-mcp | 56 | 56 | 0 | 2.3s |
 | bonita-docs-toolkit | 14 | 14 | 0 | 4.1s |
 
 ## Git Status
 
 | Repo | Branch | Uncommitted | Last Commit |
 |------|--------|-------------|-------------|
-| bonita-ps-mcp | master | clean | [date] [message] |
+| bonita-ai-agent-mcp | master | clean | [date] [message] |
 
 ## Recommendations
 

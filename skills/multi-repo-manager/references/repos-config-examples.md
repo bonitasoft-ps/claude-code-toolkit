@@ -17,13 +17,13 @@ export BONITA_DOCS_PATH="$BONITA_PS_ROOT/bonita-docs-toolkit"
 ```bash
 # Status check across all repos
 for repo in bonita-upgrade-toolkit bonita-audit-toolkit bonita-connectors-generator-toolkit \
-            template-test-toolkit bonita-docs-toolkit bonita-ps-mcp claude-code-toolkit; do
+            template-test-toolkit bonita-docs-toolkit bonita-ai-agent-mcp claude-code-toolkit; do
   echo "=== $repo ==="
   (cd "$BONITA_PS_ROOT/$repo" && git status -sb)
 done
 
 # Pull all repos
-for repo in bonita-*-toolkit template-test-toolkit bonita-ps-mcp claude-code-toolkit; do
+for repo in bonita-*-toolkit template-test-toolkit bonita-ai-agent-mcp claude-code-toolkit; do
   (cd "$BONITA_PS_ROOT/$repo" && git pull --rebase)
 done
 ```
@@ -35,7 +35,7 @@ done
   "mcpServers": {
     "bonita-ps": {
       "command": "node",
-      "args": ["bonita-ps-mcp/src/index.js"],
+      "args": ["bonita-ai-agent-mcp/src/index.js"],
       "env": {
         "BONITA_TOOLKIT_PATH": "/path/to/bonita-upgrade-toolkit",
         "BONITA_AUDIT_PATH": "/path/to/bonita-audit-toolkit",
