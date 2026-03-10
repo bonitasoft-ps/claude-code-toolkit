@@ -150,47 +150,84 @@ public class MyServiceClient implements AutoCloseable {
 }
 ```
 
-### Connector Definition Files
+### Connector Definition Files (.def)
 
-**`my-connector.def`** (input/output declaration):
+**EMF CRITICAL RULES** (violations cause `eResource() null` in Bonita Studio):
+1. **NEVER** use `<label>` or `<description>` as child elements — use `.properties` file
+2. `<category>` **MUST** be self-closing: `<category icon="x.png" id="y"/>`
+3. `inputName` **MUST** be a widget ATTRIBUTE, never a child element
+4. Namespace **MUST** be `definition/6.1`
+
+For complete rules and examples, read `references/emf-definition-rules.md`.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<definition:ConnectorDefinition xmlns:definition="http://www.bonitasoft.org/ns/connector/definition/6.1">
+<definition:ConnectorDefinition
+    xmlns:definition="http://www.bonitasoft.org/ns/connector/definition/6.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <id>my-connector</id>
   <version>1.0.0</version>
   <icon>connector.png</icon>
-  <category icon="category.png" id="MyCategory"/>
-  <input defaultValue="" mandatory="true" name="url" type="java.lang.String"/>
-  <input defaultValue="" mandatory="false" name="apiKey" type="java.lang.String"/>
-  <input defaultValue="" mandatory="false" name="payload" type="java.lang.String"/>
+  <category icon="connector.png" id="my-category"/>
+  <input name="apiKey" type="java.lang.String" mandatory="true"/>
+  <input name="payload" type="java.lang.String" mandatory="false"/>
+  <output name="success" type="java.lang.Boolean"/>
+  <output name="errorMessage" type="java.lang.String"/>
   <output name="result" type="java.lang.String"/>
-  <output name="statusCode" type="java.lang.Integer"/>
+  <page id="connectionPage">
+      <widget xsi:type="definition:Password" id="apiKeyWidget" inputName="apiKey"/>
+  </page>
+  <page id="operationPage">
+      <widget xsi:type="definition:TextArea" id="payloadWidget" inputName="payload"/>
+  </page>
 </definition:ConnectorDefinition>
 ```
 
-**`my-connector.impl`** (implementation mapping):
+**`my-connector.properties`** (i18n labels — in `src/main/resources/`):
+```properties
+connectorDefinitionLabel=My Connector
+connectorDefinitionDescription=Calls My Service API.
+my-category.category=My Category
+connectionPage.pageTitle=Connection
+apiKeyWidget.label=API Key
+apiKeyWidget.description=API key from service dashboard.
+operationPage.pageTitle=Operation
+payloadWidget.label=Payload
+payloadWidget.description=JSON payload to send.
+```
+
+### Connector Implementation Files (.impl)
+
+**MUST be in `src/main/resources-filtered/`** (Maven filtering resolves `${variables}`).
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<implementation:connectorImplementation xmlns:implementation="http://www.bonitasoft.org/ns/connector/implementation/6.0">
+<implementation:connectorImplementation
+    xmlns:implementation="http://www.bonitasoft.org/ns/connector/implementation/6.0">
+  <implementationId>my-connector-impl</implementationId>
+  <implementationVersion>${project.version}</implementationVersion>
   <definitionId>my-connector</definitionId>
   <definitionVersion>1.0.0</definitionVersion>
   <implementationClassname>com.company.connectors.MyServiceConnector</implementationClassname>
-  <implementationId>my-connector-impl</implementationId>
-  <implementationVersion>1.0.0</implementationVersion>
-  <jarDependencies>
-    <jarDependency>my-connector-1.0.0.jar</jarDependency>
-  </jarDependencies>
+  <hasSources>false</hasSources>
+  <description>My connector implementation.</description>
+${connector-dependencies}
 </implementation:connectorImplementation>
 ```
 
-### Packaging and Deployment
+### Packaging and Deployment (Studio 2021.2+)
+
+For complete packaging guide, read `references/connector-packaging.md`.
 
 ```bash
-# Build the ZIP for Bonita Studio import
-mvn package
+# Build fat JAR with shaded dependencies
+mvn clean install -DskipTests
 
-# Output: target/my-connector-1.0.0.zip
-# Import via Bonita Studio: Development > Connectors > Import
+# Output: target/my-connector-*-bonita.jar
+# Import via Bonita Studio: Extensions > Import extension
+
+# Verify JAR contents
+jar tf target/*-bonita.jar | grep -E '\.(def|impl|properties|png)$' | grep -v META-INF
 ```
 
 ---
@@ -400,6 +437,8 @@ Connector 2 (TX2): Call cancelProcessInstance → cascade kills TX2 → ROLLBACK
 
 For deeper guidance on specific topics, load these references:
 
+- **For EMF .def validation rules (CRITICAL for Studio import)**, read `references/emf-definition-rules.md`
+- **For connector packaging, shade plugin, and import protocol**, read `references/connector-packaging.md`
 - **For connector POM dependencies and Maven build setup**, read `references/connector-pom.md`
 - **For actor filter advanced patterns (LDAP, custom attributes)**, read `references/actor-filter-patterns.md`
 - **For event handler registration (all Bonita versions)**, read `references/event-handler-registration.md`
