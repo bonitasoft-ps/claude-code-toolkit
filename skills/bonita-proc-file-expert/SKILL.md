@@ -1,11 +1,11 @@
 ---
 name: bonita-proc-file-expert
 description: |
-  Expert in reading, analyzing, and modifying Bonita .proc files (EMF/XMI XML).
+  Expert in reading, analyzing, modifying, and programmatically generating Bonita .proc files (EMF/XMI XML).
   Covers namespaces, pool-level connectors, output mappings, Groovy scripts in XML,
-  expression types, transaction boundaries, and common modification patterns.
-  Keywords: .proc, XML, EMF, XMI, connector, ON_FINISH, output mapping, Groovy, transaction, pool
-allowed-tools: Read, Grep, Glob, Bash
+  expression types, transaction boundaries, notation sections, cloning, and element manipulation.
+  Keywords: .proc, XML, EMF, XMI, connector, ON_FINISH, output mapping, Groovy, transaction, pool, notation, clone
+allowed-tools: Read, Write, Grep, Glob, Bash
 user-invocable: true
 ---
 
