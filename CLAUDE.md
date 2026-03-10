@@ -10,7 +10,7 @@ Shared Claude Code methodology toolkit for the Bonitasoft PS ecosystem. Provides
 
 ## Structure
 
-- `skills/` — 22 reusable skills (Bonita experts, coding standards, etc.)
+- `skills/` — 25 reusable skills (Bonita experts, generation, coding standards, etc.)
 - `hooks/scripts/` — 16 hooks (code quality, docs consistency, RAG reminder, etc.)
 - `commands/` — 19 commands (java-maven, quality, testing, bonita)
 - `agents/` — 5 agent definitions
