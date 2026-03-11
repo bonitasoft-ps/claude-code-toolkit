@@ -50,7 +50,7 @@ This repository is the **single source of truth** for Bonitasoft's AI-assisted d
 
 | What | Purpose | How many |
 |------|---------|----------|
-| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 20 |
+| **Skills** | Expert knowledge with progressive disclosure (BDM, REST API, UIB, Audit, Testing...) | 44 |
 | **Agents** | Isolated subagents for delegated tasks (code review, test generation, audit, docs) | 5 |
 | **Commands** | Slash commands for common tasks (`/run-tests`, `/generate-tests`) | 19 |
 | **Hooks** | Automatic checks that fire without user action (format, style, compile, git workflow) | 15 |
