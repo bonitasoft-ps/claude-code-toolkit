@@ -3,6 +3,7 @@ name: bonita-organization-designer
 description: "Design and generate Bonita organization XML with users, roles, groups, and memberships."
 user_invocable: true
 trigger_keywords: ["organization", "users", "roles", "groups", "memberships", "actors", "org xml"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Organization Designer

@@ -3,6 +3,7 @@ name: bonita-groovy-scripting
 description: "Write Groovy scripts for Bonita process operations, BDM initialization, contract-to-BDM mapping, and DAO queries."
 user_invocable: true
 trigger_keywords: ["groovy", "script", "operation", "bdm script", "default value", "dao", "groovy expression", "process script"]
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Bonita Groovy Scripting Patterns

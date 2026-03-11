@@ -3,6 +3,7 @@ name: bonita-bar-packaging
 description: "Package Bonita Business Archives (.bar): process-design.xml, actorMapping, formMapping, parameters, connectors, and deployment."
 user_invocable: true
 trigger_keywords: ["bar", "package", "business archive", "deploy bar", "bar file"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita BAR Packaging

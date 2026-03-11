@@ -3,6 +3,7 @@ name: bonita-rest-api-extension-designer
 description: "Design and scaffold Bonita REST API extensions with controllers, DTOs, tests, and documentation."
 user_invocable: true
 trigger_keywords: ["rest api", "api extension", "rest endpoint", "groovy api", "java api", "controller"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita REST API Extension Designer

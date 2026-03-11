@@ -3,6 +3,7 @@ name: bonita-ai-context-setup
 description: "Set up AI context files (context-ia/) for Bonita projects to enable AI agent assistance."
 user_invocable: true
 trigger_keywords: ["context-ia", "ai context", "agents.md", "claude.md", "ai setup", "ai rules"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita AI Context Setup

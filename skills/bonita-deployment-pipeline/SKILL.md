@@ -3,6 +3,7 @@ name: bonita-deployment-pipeline
 description: "Package and deploy Bonita projects: BAR assembly, actor mapping, form mapping, Docker deploy, and monitoring."
 user_invocable: true
 trigger_keywords: ["deploy", "package", "bar file", "docker", "deploy process", "packaging", "bar"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Deployment Pipeline

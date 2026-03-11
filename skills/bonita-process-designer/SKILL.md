@@ -3,6 +3,7 @@ name: bonita-process-designer
 description: "Design Bonita BPMN processes with actors, tasks, gateways, events, contracts, connectors, and business data."
 user_invocable: true
 trigger_keywords: ["bpmn", "process design", "workflow design", "process model", "flow diagram"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Process Designer

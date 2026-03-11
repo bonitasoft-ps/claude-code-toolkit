@@ -3,6 +3,7 @@ name: bonita-bdm-best-practices
 description: "BDM best practices: naming, queries, indexes, countFor, access control, and common anti-patterns."
 user_invocable: true
 trigger_keywords: ["bdm rules", "bdm best practices", "bom xml", "bdm query", "bdm index", "countFor", "bdm naming"]
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Bonita BDM Best Practices

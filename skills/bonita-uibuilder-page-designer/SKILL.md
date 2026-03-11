@@ -3,6 +3,7 @@ name: bonita-uibuilder-page-designer
 description: "Design Bonita UIBuilder pages and forms with widgets, JS objects, queries, and navigation."
 user_invocable: true
 trigger_keywords: ["uibuilder page", "appsmith page", "uib page", "uib form", "page design", "widget layout"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita UIBuilder Page Designer

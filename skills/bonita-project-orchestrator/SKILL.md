@@ -3,6 +3,7 @@ name: bonita-project-orchestrator
 description: "End-to-end Bonita project generation orchestrator. Drives the complete workflow from requirements to deployment using all MCP tools."
 user_invocable: true
 trigger_keywords: ["new bonita project", "create project", "generate project", "bonita application", "full project", "end to end"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Project Orchestrator

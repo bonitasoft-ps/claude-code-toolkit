@@ -6,6 +6,7 @@ description: |
   via gh CLI. Never commit directly to main/master/develop.
   Keywords: commit, push, PR, pull request, branch, git, save changes.
 user-invocable: false
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Safe Git Workflow

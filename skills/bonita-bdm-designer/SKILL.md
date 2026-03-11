@@ -3,6 +3,7 @@ name: bonita-bdm-designer
 description: "Design and generate Bonita Business Data Model (BDM) from requirements. Creates bom.xml with entities, fields, relations, constraints, indexes, and queries."
 user_invocable: true
 trigger_keywords: ["bdm", "business data model", "bom.xml", "data model", "entities", "business object"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita BDM Designer

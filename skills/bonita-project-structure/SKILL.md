@@ -3,6 +3,7 @@ name: bonita-project-structure
 description: "Understand and scaffold Bonita project directory structure, multi-module Maven setup, and all artifact types."
 user_invocable: true
 trigger_keywords: ["project structure", "bonita project", "directory layout", "scaffold", "new project", "project setup"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Project Structure Guide

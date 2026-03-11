@@ -3,6 +3,7 @@ name: bonita-end-to-end-generator
 description: "Complete end-to-end Bonita project generation: spec -> BDM -> contracts -> process -> forms -> REST API -> CI/CD. Orchestrates all generator toolkits."
 user_invocable: true
 trigger_keywords: ["generate project", "end to end", "full project", "complete bonita", "e2e generation"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita End-to-End Generator

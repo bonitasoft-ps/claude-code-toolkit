@@ -16,6 +16,17 @@ You are an expert in creating Claude Code skills following the Anthropic agent s
 3. **Check for conflicts**: Ensure the new skill name doesn't conflict with existing skills
 4. **Determine scope**: Help the user decide if the skill is Enterprise, Personal, or Project
 
+## Step 0: Classify the Skill (Skills 2.0)
+
+Before determining scope, classify the skill:
+
+| Type | Description | Lifespan | Example |
+|------|-------------|----------|---------|
+| **Encoded Preferences** | Company processes, domain expertise, business rules | Permanent — no model can learn this | bonita-audit-expert, bonita-estimation-expert |
+| **Capability Uplift** | Teaches Claude something it doesn't do well yet | Temporary — new models may obsolete it | xml-parsing-fix, legacy-api-adapter |
+
+**Always prefer Encoded Preferences** — they are digital assets. Capability Uplift skills should be reviewed quarterly.
+
 ## Step 1: Scope Decision (MANDATORY)
 
 **Before writing ANY code**, help the user determine the correct scope. Ask these questions:
@@ -196,6 +207,9 @@ description: Use when the user asks about generating documents (PDF, HTML report
 4. **Be explicit** — "Always use AssertJ" not "use good assertion libraries"
 5. **Include code examples** — show the exact patterns you want Claude to follow
 6. **Structure clearly**: "When activated", "Mandatory Rules", "Progressive Disclosure", "When the user asks..."
+7. **Always define a persona** — Start with "You are a **[Role]**..." (e.g., "You are a **Bonita BDM Expert**")
+8. **Single objective** — Each skill does ONE thing well. Don't mix audit + generation.
+9. **Validation hook** — Run `hooks/scripts/check-skill-compliance.sh` to verify compliance
 
 ## allowed-tools Guidelines
 

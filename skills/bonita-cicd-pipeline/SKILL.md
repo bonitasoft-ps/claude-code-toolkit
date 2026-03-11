@@ -3,6 +3,7 @@ name: bonita-cicd-pipeline
 description: "Set up CI/CD pipelines for Bonita projects with GitHub Actions, Docker, and automated testing."
 user_invocable: true
 trigger_keywords: ["cicd", "github actions", "pipeline", "build", "deploy", "docker", "automated deployment"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita CI/CD Pipeline Designer

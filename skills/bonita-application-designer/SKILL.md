@@ -3,6 +3,7 @@ name: bonita-application-designer
 description: "Design and generate Bonita Living Applications with pages, forms, menus, layouts, and themes."
 user_invocable: true
 trigger_keywords: ["application", "living app", "pages", "forms", "menus", "uibuilder", "ui design"]
+allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 ---
 
 # Bonita Application Designer
