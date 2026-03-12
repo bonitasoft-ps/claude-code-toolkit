@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  validate-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate skill structure
+        run: |
+          errors=0
+          for dir in skills/*/; do
+            if [ ! -f "${dir}SKILL.md" ]; then
+              echo "ERROR: ${dir} missing SKILL.md"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors skills without SKILL.md"
+            exit 1
+          fi
+          echo "All skills have SKILL.md."
+      - name: Validate YAML frontmatter
+        run: |
+          errors=0
+          for file in skills/*/SKILL.md; do
+            if ! head -1 "$file" | grep -q "^---"; then
+              echo "ERROR: $file missing YAML frontmatter"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Found $errors skills without YAML frontmatter"
+            exit 1
+          fi
+          echo "All frontmatter valid."
