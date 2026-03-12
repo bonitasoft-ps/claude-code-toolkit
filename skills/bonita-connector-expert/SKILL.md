@@ -1,17 +1,21 @@
 ---
 name: bonita-connector-expert
-description: Use when the user works on Bonita extension points: connectors, actor filters, event handlers, or REST API extensions. Auto-invoked when working with *Connector*.java, *Filter*.java, *Handler*.java, RestAPI*.java, or *Controller*.java files in a Bonita project. Provides lifecycle patterns, error handling, testing, and deployment guidance for all Bonita extension types.
+description: |
+  Use when the user works on Bonita extension points: actor filters, event handlers, or REST API extensions.
+  For connector development, use the bonita-connectors-generator-toolkit instead.
+  Auto-invoked when working with *Filter*.java, *Handler*.java, RestAPI*.java, or *Controller*.java files.
+  Provides lifecycle patterns, error handling, testing, and deployment guidance for non-connector extension types.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 user-invocable: true
 ---
 
 # Bonita Extension Points Expert
 
-You are a **Senior Bonita Platform Engineer** specializing in all Bonita extension points: connectors, actor filters, event handlers, and REST API extensions. You implement production-grade extensions following Bonita SDK patterns and best practices.
+You are a **Senior Bonita Platform Engineer** specializing in Bonita extension points: actor filters, event handlers, and REST API extensions. You implement production-grade extensions following Bonita SDK patterns and best practices.
 
 ## When activated
 
-1. **Identify extension type**: Determine whether the request concerns a connector, actor filter, event handler, or REST API extension
+1. **Identify extension type**: Determine whether the request concerns an actor filter, event handler, or REST API extension
 2. **Check existing code**: Scan the project for existing extensions of the same type to understand local conventions
 3. **Check Bonita version**: Look for `bonita.version` in `pom.xml` to determine which APIs apply (7.x vs 2021+ vs 2024+)
 4. **Apply the correct lifecycle pattern** for the identified extension type
@@ -20,178 +24,24 @@ You are a **Senior Bonita Platform Engineer** specializing in all Bonita extensi
 
 ## Connectors
 
-### AbstractConnector Lifecycle
+For comprehensive connector development guidance (lifecycle, .def/.impl rules, shade plugin, multi-module Maven, testing, deployment), use the **bonita-connectors-generator-toolkit** which contains:
 
-The connector lifecycle has **4 mandatory phases**. Each phase has a distinct purpose and error handling strategy:
+- **Skills**: connector-spec, connector-generate, connector-test, connector-review, connector-migrate
+- **Knowledge base**: connector-lifecycle, emf-def-rules, impl-and-filtering, shade-plugin-guide, multi-module-structure, common-mistakes, common-patterns, auth-templates
+- **Templates**: POM, Java, XML, test templates for all project types
+
+### Quick Reference: Connector Lifecycle
 
 ```
-VALIDATE → CONNECT → EXECUTE → DISCONNECT
+VALIDATE -> CONNECT -> EXECUTE -> DISCONNECT
 ```
 
-| Phase | Method | Purpose | Exception to throw |
-|-------|--------|---------|-------------------|
-| VALIDATE | `validateInputParameters()` | Check inputs before any external call | `ConnectorValidationException` |
-| CONNECT | `connect()` | Open external connection (client init, auth) | `ConnectorException` |
-| EXECUTE | `executeBusinessLogic()` | Perform the operation | `ConnectorException` |
-| DISCONNECT | `disconnect()` | Close connection, release resources | Log only (never throw) |
-
-### Connector Implementation Pattern
-
-```java
-public class MyServiceConnector extends AbstractConnector {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MyServiceConnector.class);
-
-    private MyServiceClient client;
-
-    // --- Input/Output Constants ---
-    public static final String INPUT_URL = "url";
-    public static final String INPUT_API_KEY = "apiKey";
-    public static final String INPUT_PAYLOAD = "payload";
-    public static final String OUTPUT_RESULT = "result";
-    public static final String OUTPUT_STATUS_CODE = "statusCode";
-
-    // --- VALIDATE phase ---
-    @Override
-    public void validateInputParameters() throws ConnectorValidationException {
-        String url = (String) getInputParameter(INPUT_URL);
-        if (url == null || url.isBlank()) {
-            throw new ConnectorValidationException(this, List.of("Parameter 'url' is required and cannot be blank"));
-        }
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            throw new ConnectorValidationException(this, List.of("Parameter 'url' must start with http:// or https://"));
-        }
-    }
-
-    // --- CONNECT phase ---
-    @Override
-    protected void connect() throws ConnectorException {
-        String apiKey = (String) getInputParameter(INPUT_API_KEY);
-        try {
-            client = MyServiceClient.builder()
-                    .apiKey(apiKey)
-                    .connectTimeout(Duration.ofSeconds(10))
-                    .build();
-            client.ping(); // Verify connection works
-        } catch (Exception e) {
-            throw new ConnectorException("Failed to connect to MyService: " + e.getMessage(), e);
-        }
-    }
-
-    // --- EXECUTE phase ---
-    @Override
-    protected void executeBusinessLogic() throws ConnectorException {
-        String url = (String) getInputParameter(INPUT_URL);
-        String payload = (String) getInputParameter(INPUT_PAYLOAD);
-        try {
-            MyServiceResponse response = client.send(url, payload);
-            setOutputParameter(OUTPUT_RESULT, response.getBody());
-            setOutputParameter(OUTPUT_STATUS_CODE, response.getStatusCode());
-        } catch (MyServiceException e) {
-            LOGGER.error("Execution failed for URL {}: {}", url, e.getMessage(), e);
-            throw new ConnectorException("Execution failed: " + e.getMessage(), e);
-        }
-    }
-
-    // --- DISCONNECT phase ---
-    @Override
-    protected void disconnect() throws ConnectorException {
-        if (client != null) {
-            try {
-                client.close();
-            } catch (Exception e) {
-                LOGGER.warn("Failed to close MyService client gracefully: {}", e.getMessage());
-                // Never throw in disconnect
-            }
-        }
-    }
-}
-```
-
-### ConnectorException Hierarchy
-
-| Exception | When to use |
-|-----------|-------------|
-| `ConnectorValidationException` | Missing or invalid input parameters (VALIDATE phase) |
-| `ConnectorException` | Any failure in CONNECT or EXECUTE phase |
-
-### ServiceClient Pattern (AutoCloseable + Retry)
-
-```java
-@Data
-@Builder
-public class MyServiceClient implements AutoCloseable {
-
-    private static final int MAX_RETRIES = 3;
-    private static final Duration RETRY_DELAY = Duration.ofSeconds(2);
-
-    private final String apiKey;
-    private final Duration connectTimeout;
-    private HttpClient httpClient;
-
-    public MyServiceResponse send(String url, String payload) throws MyServiceException {
-        int attempt = 0;
-        while (attempt < MAX_RETRIES) {
-            try {
-                return doSend(url, payload);
-            } catch (TransientException e) {
-                attempt++;
-                if (attempt >= MAX_RETRIES) throw new MyServiceException("Max retries exceeded", e);
-                sleep(RETRY_DELAY.multipliedBy(attempt));
-            }
-        }
-        throw new MyServiceException("Unreachable");
-    }
-
-    @Override
-    public void close() throws Exception {
-        // Release resources
-    }
-}
-```
-
-### Connector Definition Files
-
-**`my-connector.def`** (input/output declaration):
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<definition:ConnectorDefinition xmlns:definition="http://www.bonitasoft.org/ns/connector/definition/6.1">
-  <id>my-connector</id>
-  <version>1.0.0</version>
-  <icon>connector.png</icon>
-  <category icon="category.png" id="MyCategory"/>
-  <input defaultValue="" mandatory="true" name="url" type="java.lang.String"/>
-  <input defaultValue="" mandatory="false" name="apiKey" type="java.lang.String"/>
-  <input defaultValue="" mandatory="false" name="payload" type="java.lang.String"/>
-  <output name="result" type="java.lang.String"/>
-  <output name="statusCode" type="java.lang.Integer"/>
-</definition:ConnectorDefinition>
-```
-
-**`my-connector.impl`** (implementation mapping):
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<implementation:connectorImplementation xmlns:implementation="http://www.bonitasoft.org/ns/connector/implementation/6.0">
-  <definitionId>my-connector</definitionId>
-  <definitionVersion>1.0.0</definitionVersion>
-  <implementationClassname>com.company.connectors.MyServiceConnector</implementationClassname>
-  <implementationId>my-connector-impl</implementationId>
-  <implementationVersion>1.0.0</implementationVersion>
-  <jarDependencies>
-    <jarDependency>my-connector-1.0.0.jar</jarDependency>
-  </jarDependencies>
-</implementation:connectorImplementation>
-```
-
-### Packaging and Deployment
-
-```bash
-# Build the ZIP for Bonita Studio import
-mvn package
-
-# Output: target/my-connector-1.0.0.zip
-# Import via Bonita Studio: Development > Connectors > Import
-```
+| Phase | Method | Exception |
+|-------|--------|-----------|
+| VALIDATE | `validateInputParameters()` | `ConnectorValidationException` |
+| CONNECT | `connect()` | `ConnectorException` |
+| EXECUTE | `executeBusinessLogic()` | `ConnectorException` |
+| DISCONNECT | `disconnect()` | Log only (never throw) |
 
 ---
 
@@ -265,34 +115,32 @@ return Utils.jsonResponse(responseBuilder, mapper, SC_BAD_REQUEST,
 ```java
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class MyServiceConnectorTest {
+class MyExtensionTest {
 
     @Mock
-    private MyServiceClient mockClient;
+    private SomeService mockService;
 
     @InjectMocks
-    private MyServiceConnector connector;
+    private MyExtension extension;
 
     @Test
-    void should_execute_successfully_when_service_returns_ok() throws ConnectorException {
+    void should_return_result_when_service_responds_ok() {
         // Given
-        connector.setInputParameter(MyServiceConnector.INPUT_URL, "https://api.example.com");
-        when(mockClient.send(any(), any())).thenReturn(new MyServiceResponse(200, "ok"));
+        when(mockService.call(any())).thenReturn(new Response(200, "ok"));
 
         // When
-        connector.executeBusinessLogic();
+        var result = extension.execute();
 
         // Then
-        assertThat(connector.getOutputParameter(MyServiceConnector.OUTPUT_STATUS_CODE)).isEqualTo(200);
-        assertThat(connector.getOutputParameter(MyServiceConnector.OUTPUT_RESULT)).isEqualTo("ok");
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat(result.getBody()).isEqualTo("ok");
     }
 
     @Test
-    void should_throw_validation_exception_when_url_is_blank() {
-        connector.setInputParameter(MyServiceConnector.INPUT_URL, "");
-        assertThatThrownBy(() -> connector.validateInputParameters())
-                .isInstanceOf(ConnectorValidationException.class)
-                .hasMessageContaining("url");
+    void should_throw_when_input_is_invalid() {
+        assertThatThrownBy(() -> extension.validate(""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("required");
     }
 }
 ```
@@ -303,9 +151,8 @@ class MyServiceConnectorTest {
 @Property
 void should_reject_non_http_urls(@ForAll @StringLength(min = 1) String url) {
     Assume.that(!url.startsWith("http://") && !url.startsWith("https://"));
-    connector.setInputParameter(MyServiceConnector.INPUT_URL, url);
-    assertThatThrownBy(() -> connector.validateInputParameters())
-            .isInstanceOf(ConnectorValidationException.class);
+    assertThatThrownBy(() -> extension.validate(url))
+            .isInstanceOf(IllegalArgumentException.class);
 }
 ```
 
@@ -313,26 +160,37 @@ void should_reject_non_http_urls(@ForAll @StringLength(min = 1) String url) {
 
 ```java
 @ExtendWith(WireMockExtension.class)
-class MyServiceConnectorIT {
+class MyExtensionIT {
 
     @WireMock
     WireMockServer wireMock;
 
     @Test
-    void should_call_real_endpoint_and_parse_response() throws ConnectorException {
+    void should_call_real_endpoint_and_parse_response() {
         wireMock.stubFor(post("/api/send")
                 .willReturn(okJson("{\"result\":\"ok\",\"code\":200}")));
 
-        MyServiceConnector connector = new MyServiceConnector();
-        connector.setInputParameter(INPUT_URL, wireMock.baseUrl() + "/api/send");
-        connector.connect();
-        connector.executeBusinessLogic();
-        connector.disconnect();
+        var extension = new MyExtension();
+        extension.configure(wireMock.baseUrl() + "/api/send");
+        var result = extension.execute();
 
-        assertThat(connector.getOutputParameter(OUTPUT_RESULT)).isEqualTo("ok");
+        assertThat(result.getBody()).isEqualTo("ok");
     }
 }
 ```
+
+### Test Naming Convention
+
+All test methods follow the pattern: `should_X_when_Y()`
+
+- `should_return_ok_when_input_is_valid()`
+- `should_throw_validation_exception_when_url_is_blank()`
+- `should_retry_when_transient_error_occurs()`
+
+### Integration Test Class Naming
+
+- Suffix: `*IT.java` (Maven Failsafe plugin convention)
+- Unit test suffix: `*Test.java` (Maven Surefire plugin convention)
 
 ---
 
@@ -350,10 +208,10 @@ class MyServiceConnectorIT {
 **Each pool-level ON_FINISH connector runs in its own database transaction.**
 
 ```
-Process completes → End Event
-  → Connector 1 script → Output mapping 1 → TX1 COMMIT
-  → Connector 2 script → Output mapping 2 → TX2 COMMIT
-  → Connector 3 script → Output mapping 3 → TX3 COMMIT
+Process completes -> End Event
+  -> Connector 1 script -> Output mapping 1 -> TX1 COMMIT
+  -> Connector 2 script -> Output mapping 2 -> TX2 COMMIT
+  -> Connector 3 script -> Output mapping 3 -> TX3 COMMIT
 ```
 
 Execution order is **sequential**, determined by XML document order in the `.proc` file (top to bottom).
@@ -371,11 +229,11 @@ When a pool-level ON_FINISH connector calls `cancelProcessInstance()` on its own
 2. The cascade deletes `connector_instance` rows for the cancelled process
 3. When the output mapping transaction tries to commit, it fails with `SConnectorInstanceNotFoundException`
 
-**Fix — Two-Connector Pattern:**
+**Fix -- Two-Connector Pattern:**
 
 ```
-Connector 1 (TX1): Persist BDM data → COMMIT ✓
-Connector 2 (TX2): Call cancelProcessInstance → cascade kills TX2 → ROLLBACK (acceptable)
+Connector 1 (TX1): Persist BDM data -> COMMIT (ok)
+Connector 2 (TX2): Call cancelProcessInstance -> cascade kills TX2 -> ROLLBACK (acceptable)
 ```
 
 - Move all BDM writes to a preceding connector (separate transaction)
@@ -386,7 +244,7 @@ Connector 2 (TX2): Call cancelProcessInstance → cascade kills TX2 → ROLLBACK
 
 ## Version Compatibility
 
-| Feature | Bonita 7.x | Bonita 2021.x–2023.x | Bonita 2024+ |
+| Feature | Bonita 7.x | Bonita 2021.x-2023.x | Bonita 2024+ |
 |---------|-----------|---------------------|-------------|
 | Connector API | `AbstractConnector` | `AbstractConnector` | `AbstractConnector` |
 | Event handler registration | `bonita-tenant-sp-custom.xml` | XML config | Configuration service |
@@ -396,11 +254,11 @@ Connector 2 (TX2): Call cancelProcessInstance → cascade kills TX2 → ROLLBACK
 
 ---
 
-## Progressive Disclosure — Reference Documents
+## Progressive Disclosure -- Reference Documents
 
 For deeper guidance on specific topics, load these references:
 
-- **For connector POM dependencies and Maven build setup**, read `references/connector-pom.md`
 - **For actor filter advanced patterns (LDAP, custom attributes)**, read `references/actor-filter-patterns.md`
 - **For event handler registration (all Bonita versions)**, read `references/event-handler-registration.md`
 - **For REST API extension full pattern**, use `bonita-rest-api-expert` skill
+- **For connector development**, use the `bonita-connectors-generator-toolkit`
