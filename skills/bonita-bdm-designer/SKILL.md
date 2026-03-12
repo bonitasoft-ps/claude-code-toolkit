@@ -1,103 +1,36 @@
 ---
 name: bonita-bdm-designer
-description: "Design and generate Bonita Business Data Model (BDM) from requirements. Creates bom.xml with entities, fields, relations, constraints, indexes, and queries."
-user_invocable: true
-trigger_keywords: ["bdm", "business data model", "bom.xml", "data model", "entities", "business object"]
-allowed-tools: Read, Grep, Glob, Edit, Write, Bash
+description: |
+  BDM design and generation — redirects to bonita-bdm-generator-toolkit for complete guidance.
+  Keywords: bdm, business data model, bom.xml, data model, entities, business object
+allowed-tools: Read, Grep, Glob
+user-invocable: true
 ---
 
 # Bonita BDM Designer
 
-You are an expert in Bonita Business Data Model design. You help users create well-structured BDM definitions.
+For comprehensive BDM design and generation, use the **bonita-bdm-generator-toolkit** which contains:
 
-## Field Types (from Bonita engine FieldType enum)
+## Knowledge Base
+- **bonita-bdm-complete-reference.md** -- XML schema, all field types with Java/SQL mappings, relation types, query syntax
+- **bdm-patterns.md** -- Design patterns (master-detail, reference data, audit trail, status, tree, multi-tenant, document storage)
+- **bdm-to-contract-mapping.md** -- BDM-to-contract type mapping, Groovy scripts, form widget mapping
+- **bdm-best-practices.md** -- Naming conventions, data integrity, anti-patterns
 
-| FieldType | Java Type | Contract Type | Use Case |
-|-----------|-----------|---------------|----------|
-| STRING | String | TEXT | Short text (max 255 chars) |
-| TEXT | String | TEXT | Long text (unlimited, stored as CLOB) |
-| INTEGER | Integer | INTEGER | Whole numbers |
-| LONG | Long | LONG | Large whole numbers, IDs |
-| DOUBLE | Double | DECIMAL | Decimal numbers |
-| FLOAT | Float | DECIMAL | Smaller decimal numbers |
-| BOOLEAN | Boolean | BOOLEAN | True/false |
-| DATE | Date | DATE | Legacy date (use LOCALDATE instead) |
-| LOCALDATE | LocalDate | LOCALDATE | Date without time |
-| LOCALDATETIME | LocalDateTime | LOCALDATETIME | Date with time |
-| OFFSETDATETIME | OffsetDateTime | OFFSETDATETIME | Date with time + timezone |
-| BYTE | byte[] | BYTE_ARRAY | Binary data |
-| SHORT | Short | INTEGER | Small numbers |
-| CHAR | Character | TEXT | Single character |
+## Skill
+- **bonita-bdm-expert** -- Complete skill for BDM design, generation, and validation
 
-## Relation Types
+## Quick Reference: Field Types
 
-| Type | Meaning | When to Use |
-|------|---------|-------------|
-| COMPOSITION | Parent owns child. Child is deleted with parent. | Order → OrderLine, Invoice → InvoiceItem |
-| AGGREGATION | Reference only. Child exists independently. | Employee → Department, Order → Customer |
-
-| FetchType | Meaning | When to Use |
-|-----------|---------|-------------|
-| EAGER | Loaded with parent | Always needed data, small objects |
-| LAZY | Loaded on access | Large data, optional references |
-
-## Design Patterns
-
-### Master-Detail (Composition)
-```json
-{
-  "packageName": "com.company.orders",
-  "entities": [
-    {
-      "name": "Order",
-      "fields": [
-        { "name": "orderNumber", "type": "STRING", "nullable": false },
-        { "name": "orderDate", "type": "LOCALDATE" },
-        { "name": "status", "type": "STRING" }
-      ],
-      "relations": [
-        { "name": "lines", "type": "COMPOSITION", "reference": "OrderLine", "collection": true, "fetchType": "EAGER" }
-      ]
-    },
-    {
-      "name": "OrderLine",
-      "fields": [
-        { "name": "productName", "type": "STRING" },
-        { "name": "quantity", "type": "INTEGER" },
-        { "name": "unitPrice", "type": "DOUBLE" }
-      ]
-    }
-  ]
-}
-```
-
-### Audit Trail Pattern
-Always add: `createdBy` (STRING), `createdDate` (LOCALDATETIME), `modifiedBy` (STRING), `modifiedDate` (LOCALDATETIME)
-
-### Status Pattern
-Use STRING field with known values. Document valid statuses in description.
-
-## Validation Rules (from SQLNameValidator)
-- Field/entity names must be valid Java identifiers
-- Cannot use SQL reserved words (SELECT, FROM, WHERE, TABLE, etc.)
-- Max name length: 150 characters
-- Entity qualifiedName format: `com.package.EntityName`
-
-## MCP Tools
-- `generate_bdm` — Generate complete bom.xml from entity definitions
-- `generate_bdm_entity` — Add entity to existing bom.xml
-- `validate_bdm` — Validate bom.xml against Bonita constraints
-
-## BDM to Contract Mapping
-When creating process/task contracts from BDM, use this mapping:
-- STRING/TEXT → TEXT
-- INTEGER/SHORT → INTEGER
-- LONG → LONG
-- DOUBLE/FLOAT → DECIMAL
-- BOOLEAN → BOOLEAN
-- DATE → DATE
-- LOCALDATE → LOCALDATE
-- LOCALDATETIME → LOCALDATETIME
-- OFFSETDATETIME → OFFSETDATETIME
-- BYTE → BYTE_ARRAY
-- Relations → Nested complex contract input
+| BDM Type | Java Type | Use Case |
+|----------|-----------|----------|
+| STRING | String | Short text (max 255) |
+| TEXT | String | Long text (unlimited) |
+| INTEGER | Integer | Whole numbers |
+| LONG | Long | Large numbers, IDs |
+| DOUBLE | Double | Decimals |
+| BOOLEAN | Boolean | True/false |
+| LOCALDATE | LocalDate | Date without time |
+| LOCALDATETIME | LocalDateTime | Date with time |
+| OFFSETDATETIME | OffsetDateTime | Date + time + timezone |
+| BYTE | byte[] | Binary data |
