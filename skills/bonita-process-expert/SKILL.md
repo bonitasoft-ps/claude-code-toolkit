@@ -41,3 +41,4 @@ This skill has been consolidated into **bonita-bpmn-generator-toolkit**.
 | `bonita-design-best-practices.md` | Process structure, naming, variables, connectors, flow control |
 | `bonita-process-model-reference.md` | All element types with XML examples |
 | `bonita-connector-configuration-reference.md` | Connector params and transaction boundaries |
+| `bonita-notation-reference.md` | GMF notation: DecorationNode types, element attribute rules, edge anchors, troubleshooting |
