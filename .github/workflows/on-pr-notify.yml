@@ -1,0 +1,9 @@
+name: Notify on PR
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  notify:
+    uses: bonitasoft-ps/bonita-ai-agent-mcp/.github/workflows/notify-pr.yml@main
