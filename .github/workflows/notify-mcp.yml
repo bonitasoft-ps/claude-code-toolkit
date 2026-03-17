@@ -1,0 +1,26 @@
+# Notify MCP Server when this toolkit is updated.
+# Triggers sync-ecosystem.yml in bonita-ai-agent-mcp to regenerate
+# claude-project/ knowledge and verify integration.
+#
+# Requires: PS_GITHUB_TOKEN secret (org-level or repo-level)
+
+name: Notify MCP Server
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ vars.MCP_SYNC_ENABLED != 'false' }}
+    steps:
+      - name: Trigger MCP ecosystem sync
+        env:
+          GH_TOKEN: ${{ secrets.PS_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::PS_GITHUB_TOKEN not configured. Skipping MCP notification."
+            exit 0
+          fi
+          gh api repos/bonitasoft-ps/bonita-ai-agent-mcp/dispatches             -f event_type=toolkit-updated             -f "client_payload[toolkit]=claude-code-toolkit"             -f "client_payload[ref]=${{ github.ref_name }}"             -f "client_payload[sha]=${{ github.sha }}"
